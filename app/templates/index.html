@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+</head>
+<body>
+    <h1>Register a New User</h1>
+    <input type="text" id="name" placeholder="Name" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <button onclick="registerUser()">Register</button>
+
+    <script>
+        async function registerUser() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+
+            const response = await fetch('/user/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email})
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('User registered:', data);
+            } else {
+                console.error('Registration failed:', response.statusText);
+            }
+        }
+    </script>
+</body>
+</html>
