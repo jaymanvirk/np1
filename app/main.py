@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -11,6 +12,9 @@ db = client.user_profiles
 class UserProfile(BaseModel):
     name: str
     email: str
+
+# Mount the static directory
+app.mount("/", StaticFiles(directory="static", html = True), name="static")
 
 @app.post("/user/")
 async def create_user(request: Request):
