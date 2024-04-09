@@ -3,25 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Registration</title>
 </head>
 <body>
-    <h1>Register a New User</h1>
-    <input type="text" id="name" placeholder="Name" required>
+    <h1>Sign In</h1>
     <input type="email" id="email" placeholder="Email" required>
     <button onclick="registerUser()">Register</button>
 
     <script>
         async function registerUser() {
-            const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
 
-            const response = await fetch('/user/', {
+            const response = await fetch('/signin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ name, email})
+                body: JSON.stringify({email})
             });
 
             if (response.ok) {
