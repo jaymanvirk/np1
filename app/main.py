@@ -5,19 +5,17 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 app = FastAPI()
 
+
 # MongoDB setup
-client = AsyncIOMotorClient("mongodb://localhost:27017")
+client = AsyncIOMotorClient("mongodb://db")
 db = client.user_profiles
 
 class UserProfile(BaseModel):
-    name: str
     email: str
 
-# Mount the static directory
-app.mount("/", StaticFiles(directory="static", html = True), name="static")
 
-@app.post("/user/")
-async def create_user(request: Request):
+@app.post("/signin")
+async def sign_in(request: Request):
     # Parse the JSON body of the request
     data = await request.json()
     user = UserProfile(**data)
@@ -26,10 +24,14 @@ async def create_user(request: Request):
     result = await db.users.insert_one(user.dict())
     return {"_id": str(result.inserted_id)}
 
-@app.get("/user/{user_id}")
-async def read_user(user_id: str):
-    user = await db.users.find_one({"_id": user_id})
-    if user:
-        return user
-    else:
-        return {"error": "User not found"}
+# @app.get("/user/{user_id}")
+# async def read_user(user_id: str):
+#     user = await db.users.find_one({"_id": user_id})
+#     if user:
+#         return user
+#     else:
+#         return {"error": "User not found"}
+
+
+
+app.mount("/", StaticFiles(directory="static", html = True), name="static")
