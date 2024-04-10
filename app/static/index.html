@@ -7,27 +7,11 @@
 <body>
     <h1>Sign In</h1>
     <input type="email" id="email" placeholder="Email" required>
-    <button onclick="registerUser()">Register</button>
+    <button id="sign_in">Sign In</button>
+    <button id="get_user_list">Get User List</button>
 
-    <script>
-        async function registerUser() {
-            const email = document.getElementById('email').value;
-
-            const response = await fetch('/signin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({email})
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log('User registered:', data);
-            } else {
-                console.error('Registration failed:', response.statusText);
-            }
-        }
-    </script>
+    <script src="/js/sign_in.js"></script>
+    <script src="/js/get_user_list.js"></script>
+    <script src="/js/event_listener.js"></script>
 </body>
 </html>
