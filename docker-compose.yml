@@ -2,14 +2,14 @@ version: '3.8'
 
 services:
  web:
-    container_name: web
+    container_name: docker_web
     build: .
     ports:
       - "8000:80"
     depends_on:
       - db
  db:
-    container_name: db
+    container_name: docker_mongodb
     image: mongo
     ports:
       - "27017:27017"
