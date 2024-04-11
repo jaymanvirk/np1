@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('sign_in').addEventListener('click', function() {
-        sign_in();
+    document.getElementById('send_magic_link').addEventListener('click', function() {
+        send_magic_link();
     });
 
     document.getElementById('get_user_list').addEventListener('click', function() {
