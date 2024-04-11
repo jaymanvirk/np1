@@ -1,7 +1,7 @@
-async function sign_in(){
+async function send_magic_link(){
     const email =  document.getElementById('email').value;
-    
-    const response = await fetch("/signin", {
+
+    const response = await fetch("/send_magic_link", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
