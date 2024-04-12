@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -72,13 +72,13 @@ async def verify_magic_link(sign_in_token: str):
 
     us = await collection.find_one({"sign_in_token": sign_in_token})
     if not us:
-        raise HTTPException(status_code=404, detail="Invalid magic link")
+        return {"Invalid magic link"}
     else:
         us = UserSession(**us)
         ts = datetime.fromtimestamp(us.sign_in_token_created_at)
         token_age = datetime.utcnow() - ts
         if token_age > timedelta(minutes=1):
-            raise HTTPException(status_code=401, detail="Token expired")
+            return {"Token expired"}
 
     await collection.update_one(
         {
