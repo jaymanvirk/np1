@@ -1,68 +1,79 @@
 from fastapi import Request, APIRouter
-from models import UserSession, get_sign_in_token, get_sign_in_token_created_at
-from database import mongodb_client
+from models import MongoDBService, get_token
 from datetime import datetime, timedelta
 
 router = APIRouter()
 
-async def generate_sign_in_token(email):
-    us = get_user_session(email)
-    db = mongodb_client["users"]
-    collection = db["sessions"]
+class UserAuthService(MongoDBService):
+    def __init__(self, db_name = "users"):
+        super().__init__(db_name)
+        self.collections = {"profiles": self.db["profiles"]
+                            , "auths": self.db["auths"]
+                            }
 
-    user_exist = await collection.find_one({"email": us.email})
-    if not user_exist:
-        await collection.insert_one(us.dict())
-    else:
-        await collection.update_one(
-            {"email": us.email},
-            {"$set": {
-                "sign_in_token": us.sign_in_token,
-                "sign_in_token_created_at": us.sign_in_token_created_at
-            }}
+
+    async def get_insert_user_id(self, email):
+        email_dict = {"email": email}
+        user_profile = await self.collections["profiles"].find_one(email_dict)
+
+        if not user_profile:
+            result = await self.collections["profiles"].insert_one(email_dict)
+            user_profile = {}
+            user_profile["_id"] = result.inserted_id
+            await self.collections["auths"].insert_one({"user_id": user_profile["_id"]})
+
+        self.user_id = user_profile["_id"]
+
+        return user_profile["_id"]
+
+
+    async def get_update_sign_in_token(self, _set = True):
+        action = "unset"
+        sign_in_token = {"token": None, "created_at": None}
+
+        if _set:
+            sign_in_token = get_token()
+            action = "set"
+
+        await self.collections["auths"].update_one(
+            {"user_id": self.user_id}
+            , {
+                f"${action}": {
+                    "sign_in_token": sign_in_token["token"]
+                    , "sign_in_token_created_at": sign_in_token["created_at"]
+                }
+            }
         )
 
-    return us.sign_in_token
+        return sign_in_token["token"]
 
-def get_user_session(email):
-    user_session = UserSession(
-        email=email,
-        sign_in_token=get_sign_in_token(),
-        sign_in_token_created_at=get_sign_in_token_created_at()
-    )
-
-    return user_session
 
 @router.post("/send_magic_link")
 async def send_magic_link(request: Request):
     data = await request.json()
-    sign_in_token = await generate_sign_in_token(data.get("email"))
+    user_auth_service = UserAuthService()
+    await user_auth_service.get_insert_user_id(data.get("email"))
+    sign_in_token = await user_auth_service.get_update_sign_in_token()
 
     magic_link = f"http://0.0.0.0:8000/user_auth/verify_magic_link?sign_in_token={sign_in_token}"
 
     return str(magic_link)
 
+
 @router.get("/verify_magic_link")
 async def verify_magic_link(sign_in_token: str):
-    db = mongodb_client["users"]
-    collection = db["sessions"]
+    user_auth_service = UserAuthService()
 
-    us = await collection.find_one({"sign_in_token": sign_in_token})
-    if not us:
+    user_auth = await user_auth_service.collections["auths"].find_one({"sign_in_token": sign_in_token})
+    if not user_auth:
         return "Invalid magic link"
     else:
-        us = UserSession(**us)
-        ts = datetime.fromtimestamp(us.sign_in_token_created_at)
+        ts = datetime.fromtimestamp(user_auth["sign_in_token_created_at"])
         token_age = datetime.utcnow() - ts
         if token_age > timedelta(minutes=1):
             return "Token expired"
 
-    await collection.update_one(
-        {"email": us.email},
-        {"$unset": {
-            "sign_in_token": None,
-            "sign_in_token_created_at": None
-        }}
-    )
+    user_auth_service.user_id = user_auth["user_id"]
+    await user_auth_service.get_update_sign_in_token(_set = False)
 
     return "User authenticated"
