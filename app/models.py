@@ -1,14 +1,11 @@
-from pydantic import BaseModel
+from db_connection import mongodb_client
 from datetime import datetime
 import uuid
 
-class UserSession(BaseModel):
-    email: str
-    sign_in_token: str = None
-    sign_in_token_created_at: float = None
+class MongoDBService:
+    def __init__(self, db_name):
+        self.db = mongodb_client[db_name]
 
-def get_sign_in_token():
-    return str(uuid.uuid4())
 
-def get_sign_in_token_created_at():
-    return datetime.utcnow().timestamp()
+def get_token():
+    return {"token": str(uuid.uuid4()), "created_at": datetime.utcnow().timestamp()}
