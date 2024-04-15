@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
+    check_session_id();
+
     document.getElementById('send_magic_link').addEventListener('click', function() {
         send_magic_link();
     });
