@@ -1,4 +1,5 @@
-from fastapi import Request, APIRouter, RedirectResponse
+from fastapi import Request, APIRouter
+from fastapi.responses import RedirectResponse
 from models import MongoDBService, get_token
 from datetime import datetime, timedelta
 
@@ -76,11 +77,20 @@ async def verify_magic_link(sign_in_token: str):
     user_auth_service.user_id = user_auth["user_id"]
     await user_auth_service.get_update_sign_in_token(_set = False)
 
-    response = RedirectResponse(url="/")
-
-    response.body = "User authenticated"
+    response = RedirectResponse(url="/", status_code = 303)
+    session_id = get_token()
+    response.set_cookie(key="session_id"
+        , value=session_id["token"]
+        , httponly=True
+        #, secure=True #https only
+    )
 
     return response
+
+
+@router.get("/check_session_id")
+async def check_session_id(request: Request):
+    return request.cookies.get("session_id")
 
 
 
