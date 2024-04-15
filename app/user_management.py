@@ -8,7 +8,7 @@ async def get_user_list():
     db = mongodb_client["users"]
     collection = db["auths"]
 
-    data = await collection.find({}, {"_id": 0}).to_list(length=None)
+    data = await collection.find({}, {"_id": 0, "user_id": 0}).to_list(length=None)
 
     return str(data)
 
