@@ -6,7 +6,7 @@ router = APIRouter()
 @router.get("/get_user_list")
 async def get_user_list():
     db = mongodb_client["users"]
-    collection = db["auths"]
+    collection = db["sessions"]
 
     data = await collection.find({}, {"_id": 0, "user_id": 0}).to_list(length=None)
 
@@ -15,7 +15,7 @@ async def get_user_list():
 @router.get("/clear_collection")
 async def clear_collection():
     db = mongodb_client["users"]
-    collection = db["auths"]
+    collection = db["sessions"]
 
     result = await collection.delete_many({})
 
