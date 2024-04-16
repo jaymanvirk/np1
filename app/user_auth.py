@@ -10,7 +10,11 @@ class UserAuthService(MongoDBService):
         super().__init__(db_name)
         self.collections = {"profiles": self.db["profiles"]
                             , "auths": self.db["auths"]
+                            , "sessions": self.db["sessions"]
                             }
+
+    def set_user_id(self, user_id):
+        self.user_id = user_id
 
 
     async def get_insert_user_id(self, email):
@@ -23,7 +27,7 @@ class UserAuthService(MongoDBService):
             user_profile["_id"] = result.inserted_id
             await self.collections["auths"].insert_one({"user_id": user_profile["_id"]})
 
-        self.user_id = user_profile["_id"]
+        self.set_user_id(user_profile["_id"])
 
         return user_profile["_id"]
 
@@ -48,6 +52,17 @@ class UserAuthService(MongoDBService):
 
         return sign_in_token["token"]
 
+    async def set_user_session(self, data: dict) -> None:
+        user_session = await self.collections["sessions"].find_one(self.user_id)
+
+        if not user_session:
+            await self.collections["sessions"].insert_one(data)
+        else:
+            await self.collections["sessions"].update_one(
+                {"user_id": self.user_id}
+                , {"$set": data}
+            )
+
 
 @router.post("/send_magic_link")
 async def send_magic_link(request: Request):
@@ -67,18 +82,24 @@ async def verify_magic_link(sign_in_token: str):
 
     user_auth = await user_auth_service.collections["auths"].find_one({"sign_in_token": sign_in_token})
     if not user_auth:
-        return "Invalid magic link"
+        return "Invalid token"
     else:
         ts = datetime.fromtimestamp(user_auth["sign_in_token_created_at"])
         token_age = datetime.utcnow() - ts
         if token_age > timedelta(minutes=1):
             return "Token expired"
 
-    user_auth_service.user_id = user_auth["user_id"]
+    user_auth_service.set_user_id(user_auth["user_id"])
+
     await user_auth_service.get_update_sign_in_token(_set = False)
 
-    response = RedirectResponse(url="/", status_code = 303)
     session_id = get_token()
+    data = {"session_id": session_id}
+
+    await user_auth_service.set_user_session(data)
+
+    response = RedirectResponse(url="/")
+    
     response.set_cookie(key="session_id"
         , value=session_id["token"]
         , httponly=True
@@ -90,7 +111,14 @@ async def verify_magic_link(sign_in_token: str):
 
 @router.get("/check_session_id")
 async def check_session_id(request: Request):
-    return request.cookies.get("session_id")
+    cookie_sid = request.cookies.get("session_id")
+
+    user_auth_service = UserAuthService()
+    user_cookie = await user_auth_service.collections["sessions"].find_one({"session_id.token": cookie_sid})
+    if not user_cookie:
+        return "No session available"
+
+    return "Session is found"
 
 
 
