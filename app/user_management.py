@@ -1,22 +1,59 @@
-from fastapi import APIRouter
-from db_connection import mongodb_client
+from models import MongoDBService, get_token
 
-router = APIRouter()
 
-@router.get("/get_user_list")
-async def get_user_list():
-    db = mongodb_client["users"]
-    collection = db["sessions"]
+class UserManagement(MongoDBService):
+    def __init__(self, db_name = "users"):
+        super().__init__(db_name)
+        self.collections = {"profiles": self.db["profiles"]
+                            , "auths": self.db["auths"]
+                            , "sessions": self.db["sessions"]
+                            }
 
-    data = await collection.find({}, {"_id": 0, "user_id": 0}).to_list(length=None)
+    def set_user_id(self, user_id):
+        self.user_id = user_id
 
-    return str(data)
 
-@router.get("/clear_collection")
-async def clear_collection():
-    db = mongodb_client["users"]
-    collection = db["sessions"]
+    async def get_insert_user_id(self, email):
+        email_dict = {"email": email}
+        user_profile = await self.collections["profiles"].find_one(email_dict)
 
-    result = await collection.delete_many({})
+        if not user_profile:
+            result = await self.collections["profiles"].insert_one(email_dict)
+            user_profile = {}
+            user_profile["_id"] = result.inserted_id
+            await self.collections["auths"].insert_one({"user_id": user_profile["_id"]})
 
-    return "Documents were deleted"
+        self.set_user_id(user_profile["_id"])
+
+        return user_profile["_id"]
+
+
+    async def get_update_auth_token(self, operator = "set"):
+        auth_dict = get_token()
+
+        await self.collections["auths"].update_one(
+            {"user_id": self.user_id}
+            , {
+                f"${operator}": auth_dict
+            }
+        )
+
+        return auth_dict["token"]
+
+
+    async def set_user_session(self, data: dict) -> None:
+        user_id_dict = {"user_id": self.user_id}
+        user_session = await self.collections["sessions"].find_one(user_id_dict)
+
+        if not user_session:
+            await self.collections["sessions"].insert_one({**user_id_dict, **data})
+        else:
+            await self.collections["sessions"].update_one(
+                user_id_dict
+                , {"$set": data}
+            )
+
+
+
+
+
