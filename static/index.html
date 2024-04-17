@@ -8,30 +8,9 @@
     <h1>Sign In</h1>
     <input type="email" id="email" placeholder="Email" required>
     <button id="send_magic_link">Send Magic Link</button>
-    <button id="get_user_list">Get User List</button>
 
-    <button id="clear_collection" onclick="clear_collection()">Clear Collection</button>
-    <script>
-        async function clear_collection(){
-            const response = await fetch('/user_management/clear_collection', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log(data);
-            } else {
-                console.error(response.statusText);
-            }
-        }
-    </script>
-
-    <script src="/js/check_session_id.js"></script>
+    <script src="/js/set_user_cookie.js"></script>
     <script src="/js/send_magic_link.js"></script>
-    <script src="/js/get_user_list.js"></script>
     <script src="/js/event_listener.js"></script>
 </body>
 </html>
