@@ -1,11 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    check_session_id();
+    set_user_cookie();
 
     document.getElementById('send_magic_link').addEventListener('click', function() {
         send_magic_link();
     });
 
-    document.getElementById('get_user_list').addEventListener('click', function() {
-        get_user_list();
-    });
 });
