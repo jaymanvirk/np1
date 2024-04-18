@@ -13,7 +13,7 @@ class UserManagement(MongoDBService):
         self.user_id = user_id
 
 
-    async def get_insert_user_id(self, email):
+    async def get_insert_user_id(self, email: str):
         email_dict = {"email": email}
         user_profile = await self.collections["profiles"].find_one(email_dict)
 
