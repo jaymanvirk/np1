@@ -2,7 +2,7 @@ from fastapi import Request, Response, APIRouter
 from fastapi.responses import RedirectResponse
 from user_management import UserManagement
 from models import is_token_expired, get_token
-
+from get_sign_in_html import get_sign_in_html
 
 router = APIRouter()
 
@@ -55,7 +55,7 @@ async def set_user_cookie(request: Request, response: Response):
     user_management = UserManagement()
     user_session = await user_management.collections["sessions"].find_one({"token": session_token})
     if not user_session:
-        return "No session available"
+        return get_sign_in_html()
 
     time_dict = {"days": 15} # has to be an environmental variable
     if is_token_expired(user_session["created_at"], time_dict):
