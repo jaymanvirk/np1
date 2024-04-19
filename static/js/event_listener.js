@@ -1,7 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
-    render_page();
+
+    const element_sml = document.getElementById('send_magic_link')
+    if (element_sml) {
+        element_sml.addEventListener('click', function() {
+            send_magic_link();
+        });
+    }
     
-    document.getElementById('send_magic_link').addEventListener('click', function() {
-        send_magic_link();
-    });
 });
