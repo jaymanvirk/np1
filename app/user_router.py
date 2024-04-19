@@ -2,7 +2,7 @@ from fastapi import Request, Response, APIRouter
 from fastapi.responses import RedirectResponse
 from user_management import UserManagement
 from models import is_token_expired, get_token
-from get_sign_in_html import get_sign_in_html
+from html_content.get_sign_in_html import get_sign_in_html
 
 router = APIRouter()
 
