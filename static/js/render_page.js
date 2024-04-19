@@ -9,7 +9,12 @@ async function render_page(){
     if (response.ok) {
         const data = await response.json();
         document.body.innerHTML = data;
+        document.dispatchEvent(new Event('DOMContentLoaded'));
     } else {
         console.error(response.statusText);
     }
+}
+
+window.onload = function() {
+    render_page();
 }
