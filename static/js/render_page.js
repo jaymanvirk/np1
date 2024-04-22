@@ -1,5 +1,5 @@
 async function render_page(){
-    const response = await fetch('/user_management/set_user_cookie', {
+    const response = await fetch('/user_management/start_user_session', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
