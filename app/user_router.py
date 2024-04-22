@@ -1,7 +1,6 @@
-from fastapi import Request, Response, APIRouter
+from fastapi import Request, Response, APIRouter, Query
 from fastapi.responses import RedirectResponse
-from user_management import UserManagement
-from models import is_token_expired, get_token
+from models import MongoDBService, is_token_expired, get_token
 from html_content.get_sign_in_html import get_sign_in_html
 
 router = APIRouter()
@@ -9,77 +8,89 @@ router = APIRouter()
 @router.post("/send_magic_link")
 async def send_magic_link(request: Request):
     data = {}
-    data["profile"] = await request.json()
-    data["auth"] = get_token()
-    user_management = UserManagement()
-    await user_management.set_user_sign_in(data)
-    token = await user_management.get_update_auth_token()
+    data = await request.json()
+    dbs = MongoDBService()
+    _filter = {"email": data["email"]} # has to be an environmental variable
+    params = {"data": data, "collection": "profiles", "_filter": _filter} # has to be an environmental variable
+    await dbs.set_one_document(params)
 
-    magic_link = f"http://0.0.0.0:8000/user_management/verify_magic_link?token={token}" # has to be an environmental variable
+    data = get_token()
+    data["user_id"] = dbs.ids[params.collection] # has to be an environmental variable
+    _filter = {"token": data["token"]} # has to be an environmental variable
+    params = {"data": data, "collection": "auths", "_filter": _filter} # has to be an environmental variable
+    await dbs.set_one_document(params)
+
+    magic_link = f"http://0.0.0.0:8000/user_management/verify_magic_link?token={data["token"]}" # has to be an environmental variable
 
     return str(magic_link)
 
 
 @router.get("/verify_magic_link")
-async def verify_magic_link(token: str):
-    collection_name = "auths"
-    _filter = {"token": token}
+async def verify_magic_link(request: Request, token: str = Query(...)):
+    dbs = MongoDBService()
+    _filter = {"token": token} # has to be an environmental variable
+    params = {"collection": "auths", "_filter": _filter} # has to be an environmental variable
+    user_auth = await dbs.get_one_document(params)
 
-    user_management = UserManagement()
-
-    user_auth = await user_management.get_one_document(collection_name = collection_name
-                                                        , _filter = _filter)
     if not user_auth:
         return "Invalid token"
     else:
         time_dict = {"minutes": 15} # has to be an environmental variable
-        if is_token_expired(user_auth["created_at"], time_dict):
+        if is_token_expired(user_auth["created_at"], time_dict): # has to be an environmental variable
             return "Token expired"
 
-    user_management.set_user_id(user_auth["user_id"])
+    params["data"] = get_token() # has to be an environmental variable
+    await dbs.set_one_document(params, operator = "unset")
 
-    await user_management.get_update_auth_token(operator = "unset")
-
-    session_token = get_token()
-    await user_management.set_user_session(session_token)
+    data = {}
+    session_token = request.cookies.get("session_token") # has to be an environmental variable
+    if session_token:
+        _filter = {"token": session_token}
+    data = get_token()
+    data["user_id"] = user_auth["user_id"] # has to be an environmental variable
+    params = {"data": data, "collection": "sessions", "_filter": _filter} # has to be an environmental variable
+    await dbs.set_one_document(params)
 
     response = RedirectResponse(url="/")
-    
-    response.set_cookie(key="session_token"
-        , value=session_token["token"]
-        , httponly=True
-        #, secure=True #https only
+    response.set_cookie(
+        key = "session_token" # has to be an environmental variable
+        , value = data["token"] # has to be an environmental variable
+        , httponly = True
+        #, secure = True # https only
     )
 
     return response
 
 
-@router.post("/set_user_cookie")
-async def set_user_cookie(request: Request, response: Response):
-    session_token = request.cookies.get("session_token")
-    collection_name = "sessions"
-    _filter = {"token": session_token}
+@router.post("/start_user_session")
+async def start_user_session(request: Request, response: Response):
+    token = request.cookies.get("session_token") # has to be an environmental variable
 
-    user_management = UserManagement()
-    if session_token:
-        user_session = await user_management.get_one_document(collection_name = collection_name
-                                                        , _filter = _filter)
+    dbs = MongoDBService()
+    uid = None
+    data = {}
+    data = get_token()
+    _filter = {"token": token}
+
+    if token:
+        params = {"collection": "sessions", "_filter": _filter} # has to be an environmental variable
+        user_session = await dbs.get_one_document(params)
         if user_session:
+            uid = user_session["user_id"]
             time_dict = {"days": 15} # has to be an environmental variable
-            if is_token_expired(user_session["created_at"], time_dict):
-                return "Token expired"
+            if is_token_expired(user_session["created_at"], time_dict): # has to be an environmental variable
+                return "Session expired"
 
-    session_token = get_token()
 
-    user_management.set_user_id(user_session["user_id"])
-
-    await user_management.set_user_session(session_token)
+    data["user_id"] = uid # has to be an environmental variable
+    params = {"data": data, "collection": "sessions", "_filter": _filter} # has to be an environmental variable
+    await dbs.set_one_document(params)
 
     response.set_cookie(
-        key="session_token"
-        , value=session_token["token"]
-        , httponly=True
-        #, secure=True #https only
+        key = "session_token" # has to be an environmental variable
+        , value = data["token"] # has to be an environmental variable
+        , httponly = True
+        #, secure = True # https only
     )
 
-    return get_user_profile_html()
+    return get_main_html()
