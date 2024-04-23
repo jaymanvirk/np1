@@ -98,8 +98,7 @@ async def start_user_session(request: Request, response: Response):
                                     , project = {"_id": 0}
                                     )
                 user_profile = await dbs.get_join_documents(qp)
-                
-    print(f"PRINTED: {user_session}")
+
     data = get_token()
     data["user_id"] = uid # has to be an environment variable
     await dbs.set_document(QueryParams(COLLECTION_SESSIONS, _filter, data))
