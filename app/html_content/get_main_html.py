@@ -1,4 +1,4 @@
-def get_user_profile_html(data):
+def get_main_html(data):
 	html = data
 
-	return data
+	return html
