@@ -1,18 +1,18 @@
 from db_connection import mongodb_client
 from datetime import datetime, timedelta
 import uuid
-import asyncio
+
 
 class MongoDBService:
     def __init__(self, db_name = "users"):
         self.db = mongodb_client[db_name]
         self.ids = {}
 
-    async def get_one_document(self, params: dict):
+    async def get_document(self, params):
         return await self.db[params.collection].find_one(params._filter)
 
 
-    async def set_one_document(self, params: dict, operator = "set"):
+    async def set_document(self, params, operator = "set"):
         result = await self.db[params.collection].update_one(
                     params._filter
                     , {
@@ -24,13 +24,7 @@ class MongoDBService:
         self.ids[params.collection] = result.upserted_id
 
 
-    async def set_list_documents(self, params_list: list):
-        tasks = [self.set_one_document(params) for params in params_list]
-        tasks = [asyncio.create_task(task) for task in tasks]
-        await asyncio.gather(*tasks)
-
-
-    async def get_join_documents(self, params: dict):
+    async def get_join_documents(self, params):
         pipeline = [
             {"$match": params._filter}
             , {
@@ -46,7 +40,7 @@ class MongoDBService:
             }
         ]
 
-        return await self.db[params.collection].aggregate(pipeline)
+        return [doc async for doc in self.db[params.collection].aggregate(pipeline)]
 
 
 def is_token_expired(timestamp, time_dict):
