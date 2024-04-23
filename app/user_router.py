@@ -2,59 +2,72 @@ from fastapi import Request, Response, APIRouter, Query
 from fastapi.responses import RedirectResponse
 from models import MongoDBService, is_token_expired, get_token
 from html_content.get_sign_in_html import get_sign_in_html
+from html_content.get_main_html import get_main_html
+import os
 
 router = APIRouter()
 
+COLLECTION_PROFILES = os.getenv("COLLECTION_PROFILES")
+COLLECTION_AUTHS = os.getenv("COLLECTION_AUTHS")
+COLLECTION_SESSIONS = os.getenv("COLLECTION_SESSIONS")
+MAGIC_LINK_URL = os.getenv("MAGIC_LINK_URL")
+COOKIE_SESSION_TOKEN_NAME = os.getenv("COOKIE_SESSION_TOKEN_NAME")
+
+
+class QueryParams:
+    def __init__(self, collection, _filter, data=None, _from=None, local_field=None, foreign_field=None, _as=None, project=None):
+        self.collection = collection
+        self._filter = _filter
+        self.data = data
+        self._from = _from
+        self.local_field = local_field
+        self.foreign_field = foreign_field
+        self._as = _as
+        self.project = project
+
+
 @router.post("/send_magic_link")
 async def send_magic_link(request: Request):
-    data = {}
     data = await request.json()
     dbs = MongoDBService()
-    _filter = {"email": data["email"]} # has to be an environmental variable
-    params = {"data": data, "collection": "profiles", "_filter": _filter} # has to be an environmental variable
-    await dbs.set_one_document(params)
+    _filter = {"email": data["email"]} # has to be an environment variable
+    await dbs.set_document(QueryParams(COLLECTION_PROFILES, _filter, data))
 
     data = get_token()
-    data["user_id"] = dbs.ids[params.collection] # has to be an environmental variable
-    _filter = {"token": data["token"]} # has to be an environmental variable
-    params = {"data": data, "collection": "auths", "_filter": _filter} # has to be an environmental variable
-    await dbs.set_one_document(params)
+    data["user_id"] = dbs.ids[COLLECTION_PROFILES] # has to be an environment variable
+    _filter = {"token": data["token"]} # has to be an environment variable
+    await dbs.set_document(QueryParams(COLLECTION_AUTHS, _filter, data))
 
-    magic_link = f"http://0.0.0.0:8000/user_management/verify_magic_link?token={data["token"]}" # has to be an environmental variable
+    magic_link = f"{MAGIC_LINK_URL}?token={data['token']}"
 
-    return str(magic_link)
+    return magic_link
 
 
 @router.get("/verify_magic_link")
 async def verify_magic_link(request: Request, token: str = Query(...)):
     dbs = MongoDBService()
-    _filter = {"token": token} # has to be an environmental variable
-    params = {"collection": "auths", "_filter": _filter} # has to be an environmental variable
-    user_auth = await dbs.get_one_document(params)
+    _filter = {"token": token} # has to be an environment variable
+    user_auth = await dbs.get_document(QueryParams(COLLECTION_AUTHS, _filter))
 
     if not user_auth:
         return "Invalid token"
-    else:
-        time_dict = {"minutes": 15} # has to be an environmental variable
-        if is_token_expired(user_auth["created_at"], time_dict): # has to be an environmental variable
-            return "Token expired"
+    elif is_token_expired(user_auth["created_at"], {"minutes": 15}): # has to be an environment variable
+        return "Token expired"
 
-    params["data"] = get_token() # has to be an environmental variable
-    await dbs.set_one_document(params, operator = "unset")
+    await dbs.set_document(QueryParams(COLLECTION_AUTHS, _filter, get_token()), operator="unset")
 
     data = {}
-    session_token = request.cookies.get("session_token") # has to be an environmental variable
+    session_token = request.cookies.get(COOKIE_SESSION_TOKEN_NAME)
     if session_token:
-        _filter = {"token": session_token}
+        _filter = {"token": session_token} # has to be an environment variable
     data = get_token()
-    data["user_id"] = user_auth["user_id"] # has to be an environmental variable
-    params = {"data": data, "collection": "sessions", "_filter": _filter} # has to be an environmental variable
-    await dbs.set_one_document(params)
+    data["user_id"] = user_auth["user_id"] # has to be an environment variable
+    await dbs.set_document(QueryParams(COLLECTION_SESSIONS, _filter, data))
 
     response = RedirectResponse(url="/")
     response.set_cookie(
-        key = "session_token" # has to be an environmental variable
-        , value = data["token"] # has to be an environmental variable
+        key = COOKIE_SESSION_TOKEN_NAME
+        , value = data["token"] # has to be an environment variable
         , httponly = True
         #, secure = True # https only
     )
@@ -64,33 +77,38 @@ async def verify_magic_link(request: Request, token: str = Query(...)):
 
 @router.post("/start_user_session")
 async def start_user_session(request: Request, response: Response):
-    token = request.cookies.get("session_token") # has to be an environmental variable
+    token = request.cookies.get(COOKIE_SESSION_TOKEN_NAME)
 
     dbs = MongoDBService()
     uid = None
-    data = {}
-    data = get_token()
     _filter = {"token": token}
+    user_profile = {}
 
     if token:
-        params = {"collection": "sessions", "_filter": _filter} # has to be an environmental variable
-        user_session = await dbs.get_one_document(params)
+        user_session = await dbs.get_document(QueryParams(COLLECTION_SESSIONS, _filter))
         if user_session:
             uid = user_session["user_id"]
-            time_dict = {"days": 15} # has to be an environmental variable
-            if is_token_expired(user_session["created_at"], time_dict): # has to be an environmental variable
-                return "Session expired"
-
-
-    data["user_id"] = uid # has to be an environmental variable
-    params = {"data": data, "collection": "sessions", "_filter": _filter} # has to be an environmental variable
-    await dbs.set_one_document(params)
+            if uid and not is_token_expired(user_session["created_at"], {"days": 15}): # has to be an environment variable
+                qp = QueryParams(collection = COLLECTION_SESSIONS
+                                    , _filter = _filter
+                                    , _from = COLLECTION_PROFILES
+                                    , local_field = "user_id" # has to be an environment variable
+                                    , foreign_field = "_id"
+                                    , _as = "user_profile"
+                                    , project = {"_id": 0}
+                                    )
+                user_profile = await dbs.get_join_documents(qp)
+                
+    print(f"PRINTED: {user_session}")
+    data = get_token()
+    data["user_id"] = uid # has to be an environment variable
+    await dbs.set_document(QueryParams(COLLECTION_SESSIONS, _filter, data))
 
     response.set_cookie(
-        key = "session_token" # has to be an environmental variable
-        , value = data["token"] # has to be an environmental variable
+        key = COOKIE_SESSION_TOKEN_NAME # has to be an environment variable
+        , value = data["token"] # has to be an environment variable
         , httponly = True
         #, secure = True # https only
     )
 
-    return get_main_html()
+    return get_sign_in_html() # get_main_html(user_profile)
