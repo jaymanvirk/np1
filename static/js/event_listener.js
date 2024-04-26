@@ -1,10 +1,18 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-    const element_sml = document.getElementById('send_magic_link')
-    if (element_sml) {
-        element_sml.addEventListener('click', function() {
-            send_magic_link();
-        });
-    }
+    const element_ids = [
+                        'send_magic_link'
+                        , 'start_streaming'
+                        , 'stop_streaming'
+                    ]
+    element_ids.forEach(id => {
+        const element = document.getElementById(id)
+        if (element) {
+            element.addEventListener('click', () => {
+                const func = window[id];
+                func();
+            });
+        }
+    })
     
 });
