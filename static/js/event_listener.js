@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     const element_ids = [
-                        'send_magic_link'
+                        'send_sign_in_link'
                         , 'start_streaming'
                         , 'stop_streaming'
                     ]
