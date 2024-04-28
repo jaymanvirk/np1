@@ -1,6 +1,6 @@
 from fastapi import Request, Response, APIRouter, Query
 from fastapi.responses import RedirectResponse
-from models import MongoDBService, is_token_expired, get_token
+from models import MongoDBService, QueryParams, is_token_expired, get_token
 from html_content.get_sign_in_html import get_sign_in_html
 from html_content.get_main_html import get_main_html
 import os
@@ -12,18 +12,6 @@ COLLECTION_AUTHS = os.getenv("COLLECTION_AUTHS")
 COLLECTION_SESSIONS = os.getenv("COLLECTION_SESSIONS")
 SIGN_IN_LINK_URL = os.getenv("SIGN_IN_LINK_URL")
 COOKIE_SESSION_TOKEN_NAME = os.getenv("COOKIE_SESSION_TOKEN_NAME")
-
-
-class QueryParams:
-    def __init__(self, collection, _filter, data=None, _from=None, local_field=None, foreign_field=None, _as=None, project=None):
-        self.collection = collection
-        self._filter = _filter
-        self.data = data
-        self._from = _from
-        self.local_field = local_field
-        self.foreign_field = foreign_field
-        self._as = _as
-        self.project = project
 
 
 @router.post("/send_sign_in_link")
