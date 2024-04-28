@@ -2,6 +2,17 @@ from db_connection import mongodb_client
 from datetime import datetime, timedelta
 import uuid
 
+class QueryParams:
+    def __init__(self, collection, _filter, data=None, _from=None, local_field=None, foreign_field=None, _as=None, project=None):
+        self.collection = collection
+        self._filter = _filter
+        self.data = data
+        self._from = _from
+        self.local_field = local_field
+        self.foreign_field = foreign_field
+        self._as = _as
+        self.project = project
+        
 
 class MongoDBService:
     def __init__(self, db_name = "users"):
