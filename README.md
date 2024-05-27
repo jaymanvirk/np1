@@ -1,1 +1,1 @@
-# Project 1
+# Search similar hotels by photos
