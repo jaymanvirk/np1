@@ -1,18 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-    const element_ids = [
-                        'send_sign_in_link'
-                        , 'start_streaming'
-                        , 'stop_streaming'
-                    ]
-    element_ids.forEach(id => {
-        const element = document.getElementById(id)
-        if (element) {
-            element.addEventListener('click', () => {
-                const func = window[id];
-                func();
-            });
-        }
-    })
-    
+
+    const button_sign_in_link = document.getElementById('send_sign_in_link');
+    button_sign_in_link.addEventListener('click', send_sign_in_link);
+
+    const zone_drag_drop_image = document.getElementById('drop_image');
+    zone_drag_drop_image.addEventListener('dragover', drag_image);
+    zone_drag_drop_image.addEventListener('drop', drop_image);
+
+    const button_select_image = document.getElementById('select_image');
+    button_select_image.addEventListener('change', handle_select_image);
+
 });
