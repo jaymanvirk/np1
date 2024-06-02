@@ -2,14 +2,17 @@ from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 
 router = APIRouter()
 
-@router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+@router.websocket("/upload/images")
+async def handle_upload_images(websocket: WebSocket):
     await websocket.accept()
-    try:
-	    while True:
-	        data = await websocket.receive_bytes()
+    image_data = b''
+    while True:
+        try:
+	        chunk = await websocket.receive_bytes()
+            if not chunk:
+                break
+            image_data += chunk
+        except WebSocketDisconnect:
+            break
 
-	        await websocket.send_text(f"Received {len(data)} bytes")
-    except WebSocketDisconnect:
-
-        print("WebSocket connection closed")
+    await websocket.send_text(f"Received {image_data = }")
