@@ -1,7 +1,11 @@
 def get_main_html(data):
 	html = '''
-			<button id="start_streaming">Start Streaming</button>
-    		<button id="stop_streaming">Stop Streaming</button>
+		  <div id="drop_image">
+		    <p>Drag and drop image here or</p>
+		    <input type="file" id="select_image" accept="image/*">
+		  </div>
+
+		  <img id="preview_image" src="#" alt="Image Preview" style="max-width: 400px;">
     		'''
 
 	return html
