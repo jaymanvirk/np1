@@ -1,0 +1,19 @@
+version: '3.8'
+
+include:
+      - service/fastapi/docker-compose.yaml
+
+# services:
+#   fastapi:
+#     include:
+#       - service/fastapi/docker-compose.yaml
+#   milvus:
+#     include:
+#       - service/milvus/docker-compose.yaml
+#   mongodb:
+#     include:
+#       - service/mongodb/docker-compose.yaml
+
+networks:
+  fastapi-network:
+    driver: bridge
