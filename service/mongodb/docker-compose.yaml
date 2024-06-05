@@ -1,8 +1,0 @@
-  version: '3.8'
-  mongodb:
-    container_name: mongodb
-    image: mongo
-    ports:
-      - "27017:27017"
-  networks:
-    - fastapi-network
