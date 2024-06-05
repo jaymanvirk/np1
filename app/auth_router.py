@@ -99,3 +99,14 @@ async def start_user_session(request: Request, response: Response):
     )
 
     return get_main_html(user_profile)
+
+from motor.motor_asyncio import AsyncIOMotorClient
+
+@router.on_event("startup")
+async def startup_event():
+    try:
+        client = AsyncIOMotorClient("mongodb://mongodb")
+        await client.server_info()
+    except Exception as e:
+        print(f"Error connecting to MongoDB: {e}")
+        raise
