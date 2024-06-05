@@ -8,7 +8,7 @@ async def handle_upload_images(websocket: WebSocket):
     image_data = b''
     while True:
         try:
-	        chunk = await websocket.receive_bytes()
+            chunk = await websocket.receive_bytes()
             if not chunk:
                 break
             image_data += chunk
