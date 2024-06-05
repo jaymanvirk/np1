@@ -6,10 +6,10 @@ x-fastapi-service: &fastapi-service
   ports:
     - "8000:80"
   depends_on:
-    - x-mongodb-service
-    - x-milvus-etcd-service
-    - x-milvus-minio-service
-    - x-milvus-standalone-service
+    - mongodb
+  #   - milvus-etcd
+  #   - milvus-minio
+  #   - milvus-standalone
   env_file:
     - dev.env
   networks:
@@ -79,20 +79,20 @@ x-milvus-standalone-service: &milvus-standalone-service
     - "19530:19530"
     - "9091:9091"
   depends_on:
-    - x-milvus-etcd-service
-    - x-milvus-minio-service
+    - milvus-etcd
+    - milvus-minio
 
 services:
   fastapi:
     <<: *fastapi-service
-  milvus-etcd:
-    <<: *milvus-etcd-service
-  milvus-minio:
-    <<: *milvus-minio-service
-  milvus-standalone:
-    <<: *milvus-standalone-service
   mongodb:
     <<: *mongodb-service
+  # milvus-etcd:
+  #   <<: *milvus-etcd-service
+  # milvus-minio:
+  #   <<: *milvus-minio-service
+  # milvus-standalone:
+  #   <<: *milvus-standalone-service
 
 networks:
   fastapi-network:
