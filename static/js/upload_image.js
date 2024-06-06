@@ -4,6 +4,7 @@ async function upload_image(file){
 
     ws.onopen = () => {
       const image_data = new Uint8Array(file);
+      console.log(image_data);
       const chunk_size = 1024;
       for (let i = 0; i < image_data.length; i += chunkSize) {
         ws.send(image_data.slice(i, i + chunkSize));
@@ -23,10 +24,9 @@ async function upload_image(file){
     };
 }
 
-
 function select_image(event) {
     const file = event.target.files[0];
-    upload_image(file)
+    upload_image(file);
 }
 
 function drag_image(event) {
@@ -37,10 +37,10 @@ function drag_image(event) {
 function drop_image(event) {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
-    upload_image(file)
+    upload_image(file);
 }
 
-function previewImage(file) {
+function preview_image(file) {
     preview_image = document.getElementById('preview_image');
     if (file.type.startsWith('image/')) {
         const reader = new FileReader();
