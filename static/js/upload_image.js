@@ -1,10 +1,10 @@
 async function upload_image(file){
-    preview_image(file);
+    const image_array = get_image_array(file)
+    preview_image(image_array);
     const ws = new WebSocket("ws://localhost:8000/upload/images");
 
     ws.onopen = () => {
-      const image_data = new Uint8Array(file);
-      console.log(image_data);
+      const image_data = new Uint8Array(image_array);
       const chunk_size = 1024;
       for (let i = 0; i < image_data.length; i += chunkSize) {
         ws.send(image_data.slice(i, i + chunkSize));
@@ -40,13 +40,23 @@ function drop_image(event) {
     upload_image(file);
 }
 
-function preview_image(file) {
+function preview_image(image_array) {
     preview_image = document.getElementById('preview_image');
-    if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            preview_image.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
+    preview_image.src = image_data
+    // if (file.type.startsWith('image/')) {
+    //     const reader = new FileReader();
+    //     reader.onload = function(event) {
+    //         preview_image.src = event.target.result;
+    //     };
+    //     reader.readAsDataURL(file);
+    // }
+}
+
+function get_image_array(file){
+    const reader = new FileReader();
+    reader.onloadend = (event) => {
+        return event.target.result;
+    };
+
+    return reader.readAsArrayBuffer(file);
 }
