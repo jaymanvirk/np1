@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const button_select_image = document.getElementById('select_image');
     if (button_select_image){
-        button_select_image.addEventListener('change', handle_select_image);
+        button_select_image.addEventListener('change', select_image);
     }
 
 });
