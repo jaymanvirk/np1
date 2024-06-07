@@ -1,14 +1,16 @@
 async function upload_image(file){
-    const image_array = get_image_array(file)
-    preview_image(image_array);
     const ws = new WebSocket("ws://localhost:8000/upload/images");
 
     ws.onopen = () => {
-      const image_data = new Uint8Array(image_array);
-      const chunk_size = 1024;
-      for (let i = 0; i < image_data.length; i += chunkSize) {
-        ws.send(image_data.slice(i, i + chunkSize));
-      }
+        const reader = new FileReader();
+        reader.onloadend = (event) => {
+            const image_data = new Uint8Array(event.target.result);
+            const chunk_size = 1024;
+            for (let i = 0; i < image_data.length; i += chunk_size) {
+                ws.send(image_data.slice(i, i + chunk_size));
+            };
+        };
+        reader.readAsArrayBuffer(file);
     };
 
     ws.onmessage = (event) => {
@@ -26,6 +28,7 @@ async function upload_image(file){
 
 function select_image(event) {
     const file = event.target.files[0];
+    preview_image(file);
     upload_image(file);
 }
 
@@ -40,23 +43,11 @@ function drop_image(event) {
     upload_image(file);
 }
 
-function preview_image(image_array) {
+function preview_image(file) {
     preview_image = document.getElementById('preview_image');
-    preview_image.src = image_data
-    // if (file.type.startsWith('image/')) {
-    //     const reader = new FileReader();
-    //     reader.onload = function(event) {
-    //         preview_image.src = event.target.result;
-    //     };
-    //     reader.readAsDataURL(file);
-    // }
-}
-
-function get_image_array(file){
     const reader = new FileReader();
-    reader.onloadend = (event) => {
-        return event.target.result;
+    reader.onload = function(event) {
+        preview_image.src = event.target.result;
     };
-
-    return reader.readAsArrayBuffer(file);
-}
+    reader.readAsDataURL(file);
+};
