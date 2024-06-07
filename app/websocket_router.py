@@ -9,10 +9,11 @@ async def handle_upload_images(websocket: WebSocket):
     while True:
         try:
             chunk = await websocket.receive_bytes()
-            if not chunk:
+            if chunk == b'':
                 break
             image_data += chunk
         except WebSocketDisconnect:
+            await websocket.close()
             break
 
-    await websocket.send_text(f"Received {image_data = }")
+    await websocket.send_text(f"Received {image_data}")
