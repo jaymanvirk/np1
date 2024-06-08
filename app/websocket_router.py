@@ -2,18 +2,17 @@ from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 
 router = APIRouter()
 
-@router.websocket("/upload/images")
-async def handle_upload_images(websocket: WebSocket):
+@router.websocket("/upload/image")
+async def handle_upload_image(websocket: WebSocket):
     await websocket.accept()
+    n = await websocket.receive_text()
+    n = int(float(n)) + 1
     image_data = b''
-    while True:
+    while n:
         try:
-            chunk = await websocket.receive_bytes()
-            if chunk == b'':
-                break
-            image_data += chunk
+            image_data += await websocket.receive_bytes()
+            n -= 1
         except WebSocketDisconnect:
-            await websocket.close()
             break
 
-    await websocket.send_text(f"Received {image_data}")
+    await websocket.send_text(f"Received {len(image_data)}")
