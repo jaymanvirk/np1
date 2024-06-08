@@ -1,11 +1,12 @@
 async function upload_image(file){
-    const ws = new WebSocket("ws://localhost:8000/upload/images");
+    const ws = new WebSocket("ws://localhost:8000/upload/image");
 
     ws.onopen = () => {
         const reader = new FileReader();
         reader.onloadend = (event) => {
             const image_data = new Uint8Array(event.target.result);
             const chunk_size = 1024;
+            ws.send(image_data.length/chunk_size);
             for (let i = 0; i < image_data.length; i += chunk_size) {
                 ws.send(image_data.slice(i, i + chunk_size));
             };
