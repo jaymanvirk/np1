@@ -5,4 +5,4 @@ Plan:
 2. Towhee
 3. Select open-source image feature extraction model
 4. Output top k similar photos
-
+5. Find products on websites
