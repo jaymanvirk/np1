@@ -6,6 +6,14 @@ def get_main_html(data):
 		  </div>
 
 		  <img id="preview_image" src="#" alt="Image Preview" style="max-width: 400px;">
+
+		  <button id="stream_audio">
+		  	Stream Audio
+		  </button>
+
+		  <div id="chat_log">
+
+		  </div>
     		'''
 
 	return html
