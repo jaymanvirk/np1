@@ -4,3 +4,4 @@ motor
 bleach
 towhee
 pymilvus
+faster-whisper
