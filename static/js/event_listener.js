@@ -17,4 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
         button_select_image.addEventListener('change', select_image);
     }
 
+    const button_stream_audio = document.getElementById('stream_audio');
+    if (button_stream_audio){
+        button_stream_audio.addEventListener('click', stream_audio);
+    }
 });
