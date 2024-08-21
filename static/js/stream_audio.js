@@ -1,21 +1,25 @@
-async function stream_audio(){
-	const ws = new WebSocket("ws://localhost:8000/stream/audio");
+const ws = new WebSocket("ws://localhost:8000/stream/audio");
 
-    let mediaRecorder;
-	const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(stream);
-    
-    mediaRecorder.ondataavailable = event => {
-        ws.send(event.data);
-    };
+async function stream_audio(){
+
+    ws.onopen = async () => {
+	    console.log("WebSocket connection established");
+
+	    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+	    const mediaRecorder = new MediaRecorder(stream);
+
+	    mediaRecorder.ondataavailable = event => {
+	        if (event.data.size > 0) {
+	            ws.send(event.data);
+	        }
+	    };
+
+	    mediaRecorder.start(25); // Send audio data every 25 milliseconds
+	};
 
    	ws.onmessage = (event) => {
   		const transcriptionDiv = document.getElementById('chat_log');
         transcriptionDiv.innerHTML += event.data;
-    };
-
-   	ws.onopen = () => {
-      console.log('WebSocket connection open');
     };
 
     ws.onclose = () => {
