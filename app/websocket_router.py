@@ -23,22 +23,26 @@ async def handle_upload_image(websocket: WebSocket):
 @router.websocket("/stream/audio")
 async def handle_stream_audio(websocket: WebSocket):
     await websocket.accept()
-    for message in websocket:
-        # Convert the received audio data to a NumPy array
-        audio_data = np.frombuffer(message, dtype=np.int16)  # Adjust dtype based on your audio format
-        
-        # Transcribe the audio data
-        # Whisper expects audio data in float32 format and normalized between -1.0 and 1.0
-        audio_data_float = audio_data.astype(np.float32) / 32768.0  # Normalize 16-bit PCM to float32
-        
-        # Transcribe the audio
-        segments, _ = get_transcription(audio_data_float)
-        
-        # Extract the transcribed text
-        transcribed_text = " ".join(segment.text for segment in segments)
-        
-        # Send the transcribed text back to the client
-        await websocket.send(transcribed_text)
+    try:
+        while True:
+            message = await websocket.receive_bytes()
+
+            # Convert the received audio data to a NumPy array
+            audio_data = np.frombuffer(message, dtype=np.int16)  # Adjust dtype based on your audio format
+            
+            # Transcribe the audio data
+            # Whisper expects audio data in float32 format and normalized between -1.0 and 1.0
+            audio_data_float = audio_data.astype(np.float32) / 32768.0  # Normalize 16-bit PCM to float32
+ 
+            # Transcribe the audio
+            segments, _ = get_transcription(audio_data_float)
+            
+            for segment in segments:
+                await websocket.send(segment.text)
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        await websocket.close()
 
 
 
