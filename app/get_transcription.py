@@ -1,6 +1,5 @@
 from faster_whisper import WhisperModel
 
-
 def get_transcription(audio_data_float):
     model_size = "base"
 
@@ -9,7 +8,7 @@ def get_transcription(audio_data_float):
     # # or run on GPU with INT8
     # model = WhisperModel(model_size, device="cuda", compute_type="int8_float16")
     # # or run on CPU with INT8
-    model = WhisperModel(model_size, device="cpu", compute_type="int8")
+    # model = WhisperModel(model_size, device="cpu", compute_type="int8")
 
 
-    return model.transcribe(audio_data_float, beam_size=5)
+    return ([{'text':"test message"}],1) # model.transcribe(audio_data_float, beam_size=5)
