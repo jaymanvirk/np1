@@ -1,7 +1,4 @@
 fastapi
 uvicorn[standard]
 motor
-bleach
-towhee
-pymilvus
 faster-whisper
