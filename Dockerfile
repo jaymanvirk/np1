@@ -10,7 +10,7 @@ COPY ./static /app/static
 COPY requirements.txt .
 
 # Install any needed packages specified in requirements.txt
-RUN pip install -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 
 # Command to run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80", "--workers", "-1"]
