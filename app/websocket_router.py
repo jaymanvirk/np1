@@ -25,20 +25,33 @@ async def handle_stream_audio(websocket: WebSocket):
     await websocket.accept()
     try:
         while True:
-            message = await websocket.receive_bytes()
+            print("ENTERED THE LOOP")
+            try:
+                message = await websocket.receive_bytes()
+                print(len(message))
+            except Exception as e:
+                print(f"Error receiving message: {e}")
+                break
+                
+            # try:
+            #     audio_data = np.frombuffer(message, dtype=np.int16)
+            # except Exception as e:
+            #     print(f"Error np.frombuffer: {e}")
+            #     break
 
-            # Convert the received audio data to a NumPy array
-            audio_data = np.frombuffer(message, dtype=np.int16)  # Adjust dtype based on your audio format
-            
-            # Transcribe the audio data
-            # Whisper expects audio data in float32 format and normalized between -1.0 and 1.0
-            audio_data_float = audio_data.astype(np.float32) / 32768.0  # Normalize 16-bit PCM to float32
- 
-            # Transcribe the audio
-            segments, _ = get_transcription(audio_data_float)
-            
-            for segment in segments:
-                await websocket.send(segment.text)
+            # try:
+            #     audio_data_float = audio_data.astype(np.float32) / 32768.0
+            # except Exception as e:
+            #     print(f"Error .astype: {e}")
+            #     break
+
+            # try:
+            #     segments, _ = get_transcription(audio_data_float)
+            #     for segment in segments:
+            #         await websocket.send_text(segment.text)
+            # except Exception as e:
+            #     print(f"Error get_transcription: {e}")
+            #     break
     except Exception as e:
         print(f"Error: {e}")
     finally:
