@@ -1,12 +1,13 @@
 async function stream_audio(){
 	const ws = new WebSocket("ws://localhost:8000/stream/audio");
+	const transcriptionDiv = document.getElementById('chat_log');
+
 	ws.onopen = async () => {
 		console.log("WebSocket connection established");
 	};
 
 	ws.onmessage = (event) => {
-		const transcriptionDiv = document.getElementById('chat_log');
-	    transcriptionDiv.innerHTML += event.data;
+	    transcriptionDiv.innerHTML += event.data + "<br>";
 	};
 
 	ws.onclose = () => {
@@ -26,7 +27,7 @@ async function stream_audio(){
                 ws.send(event.data);
             }
         };
-        mediaRecorder.start(100);
+        mediaRecorder.start(5000);
     })
     .catch(error => console.error("Error accessing microphone: ", error));
 };
