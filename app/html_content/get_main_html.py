@@ -12,8 +12,8 @@ def get_main_html(data):
 		  </button>
 
 		  <div id="chat_log">
-
 		  </div>
+
     		'''
 
 	return html
