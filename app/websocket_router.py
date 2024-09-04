@@ -24,26 +24,26 @@ async def handle_upload_image(websocket: WebSocket):
 @router.websocket("/stream/audio")
 async def handle_stream_audio(websocket: WebSocket):
     await websocket.accept()
-    buffer = []
+    audio_buffer = bytearray()
+    dtype = np.float32
+    element_size = np.dtype(dtype).itemsize
+
     try:
         while True:
-            data = await websocket.receive_bytes()
-            audio_chunk = np.frombuffer(data, dtype=np.float32)
-            buffer.extend(audio_chunk)
-            
-            # Process when buffer reaches a certain size
-            if len(buffer) >= 16000:  # Process every 1 second of audio (assuming 16kHz sample rate)
-                audio_data = np.array(buffer[:16000])
-                buffer = buffer[16000:]
-                
-                # Transcribe the audio chunk
+            audio_chunk = await websocket.receive_bytes()
+            audio_buffer.extend(audio_chunk)
+
+            if len(audio_buffer) >= element_size:
+                audio_data = np.frombuffer(audio_buffer[:element_size], dtype=dtype)
+                audio_buffer = audio_buffer[element_size:]
+                # audio_data = io.BytesIO(data)
                 segments, _ = get_transcription(audio_data)
                 transcription = " ".join([segment.text for segment in segments])
                 
                 if transcription.strip():
                     await websocket.send_text(transcription)
 
-            # audio_data = io.BytesIO(message)
+            
 
             # try:
             #     segments, info = get_transcription(audio_data)
