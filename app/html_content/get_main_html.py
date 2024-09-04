@@ -13,7 +13,6 @@ def get_main_html(data):
 
 		  <div id="chat_log">
 		  </div>
-
     		'''
 
 	return html
