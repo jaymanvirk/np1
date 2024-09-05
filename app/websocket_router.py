@@ -2,6 +2,7 @@ from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from get_transcription import get_transcription
 import io
 import numpy as np
+from pydub import AudioSegment
 
 router = APIRouter()
 
@@ -24,37 +25,28 @@ async def handle_upload_image(websocket: WebSocket):
 @router.websocket("/stream/audio")
 async def handle_stream_audio(websocket: WebSocket):
     await websocket.accept()
-    audio_buffer = bytearray()
-    dtype = np.float32
-    element_size = np.dtype(dtype).itemsize
+    audio_buffer = b''
 
     try:
         while True:
             audio_chunk = await websocket.receive_bytes()
-            audio_buffer.extend(audio_chunk)
+            audio_buffer += audio_chunk
+            audio_data = io.BytesIO(audio_buffer)
 
-            if len(audio_buffer) >= element_size:
-                audio_data = np.frombuffer(audio_buffer[:element_size], dtype=dtype)
-                audio_buffer = audio_buffer[element_size:]
-                # audio_data = io.BytesIO(data)
-                segments, _ = get_transcription(audio_data)
-                transcription = " ".join([segment.text for segment in segments])
-                
-                if transcription.strip():
-                    await websocket.send_text(transcription)
+            # audio_array = np.frombuffer(audio_chunk, dtype=np.float32)
 
-            
+            # max_val = np.max(np.abs(audio_array))
+            # if max_val > 0:
+            #     audio_array_norm = audio_array / max_val
+            # else:
+            #     audio_array_norm = audio_array
+ 
+            segments, _ = await get_transcription(audio_data)
+            transcription = " ".join([segment.text for segment in segments])
 
-            # try:
-            #     segments, info = get_transcription(audio_data)
-            #     await websocket.send_text(f"3. completed get_transcription: {list(segments)}")
-            #     # for segment in segments:
-            #     #     await websocket.send_text(f"{segment.start}, {segment.end}, {segment.text}")
-            # except Exception as e:
-            #     await websocket.send_text(f"3. Error get_transcription: {e}")
-            #     break
-            # finally:
-            #     audio_data.close()
+            if transcription.strip():
+                await websocket.send_text(transcription)
+
 
     except Exception as e:
         await websocket.send_text(f"Error: {e}")
