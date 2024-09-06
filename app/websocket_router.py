@@ -1,8 +1,6 @@
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from get_transcription import get_transcription
 import io
-import numpy as np
-from pydub import AudioSegment
 
 router = APIRouter()
 
@@ -30,18 +28,13 @@ async def handle_stream_audio(websocket: WebSocket):
     try:
         while True:
             audio_chunk = await websocket.receive_bytes()
+
             audio_buffer += audio_chunk
+
             audio_data = io.BytesIO(audio_buffer)
 
-            # audio_array = np.frombuffer(audio_chunk, dtype=np.float32)
+            segments, _ = get_transcription(audio_data)
 
-            # max_val = np.max(np.abs(audio_array))
-            # if max_val > 0:
-            #     audio_array_norm = audio_array / max_val
-            # else:
-            #     audio_array_norm = audio_array
- 
-            segments, _ = await get_transcription(audio_data)
             transcription = " ".join([segment.text for segment in segments])
 
             if transcription.strip():
