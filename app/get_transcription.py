@@ -8,6 +8,6 @@ beam_size = 1
 model = WhisperModel(model_size, device=device, compute_type=compute_type)
 
 
-async def get_transcription(audio_data):
+def get_transcription(audio_data):
     
     return model.transcribe(audio_data, beam_size=beam_size)
