@@ -23,17 +23,15 @@ async def handle_upload_image(websocket: WebSocket):
 @router.websocket("/stream/audio")
 async def handle_stream_audio(websocket: WebSocket):
     await websocket.accept()
-    audio_buffer = b''
 
     try:
+        audio_chunk_0 = await websocket.receive_bytes()
         while True:
             audio_chunk = await websocket.receive_bytes()
 
-            audio_buffer += audio_chunk
+            audio_data = io.BytesIO(audio_chunk_0 + audio_chunk)
 
-            audio_data = io.BytesIO(audio_buffer)
-
-            segments, _ = get_transcription(audio_data)
+            segments, _ = await get_transcription(audio_data)
 
             transcription = " ".join([segment.text for segment in segments])
 
