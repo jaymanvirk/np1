@@ -26,6 +26,7 @@ async def handle_stream_audio(websocket: WebSocket):
 
     try:
         audio_chunk_0 = await websocket.receive_bytes()
+
         while True:
             audio_chunk = await websocket.receive_bytes()
 
@@ -38,12 +39,10 @@ async def handle_stream_audio(websocket: WebSocket):
             if transcription.strip():
                 await websocket.send_text(transcription)
 
-
     except Exception as e:
         await websocket.send_text(f"Error: {e}")
     finally:
         await websocket.close()
-
 
 
 
