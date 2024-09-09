@@ -1,6 +1,7 @@
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from get_transcription import get_transcription
 import io
+from pydub import AudioSegment
 
 router = APIRouter()
 
@@ -30,9 +31,15 @@ async def handle_stream_audio(websocket: WebSocket):
         while True:
             audio_chunk = await websocket.receive_bytes()
 
-            audio_data = io.BytesIO(audio_chunk_0 + audio_chunk)
+            tmp = AudioSegment.from_file(io.BytesIO(audio_chunk_0 + audio_chunk))
+            audio_data = tmp[-100:]
+            byte_stream = io.BytesIO()
+            audio_data.export(byte_stream)
+            byte_stream.seek(0)
 
-            segments, _ = await get_transcription(audio_data)
+            await websocket.send_text('start transcription')
+
+            segments, _ = await get_transcription(byte_stream)
 
             transcription = " ".join([segment.text for segment in segments])
 
@@ -43,7 +50,6 @@ async def handle_stream_audio(websocket: WebSocket):
         await websocket.send_text(f"Error: {e}")
     finally:
         await websocket.close()
-
 
 
 
