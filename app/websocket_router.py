@@ -1,7 +1,11 @@
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from get_transcription import get_transcription
+from get_processed_audio import get_processed_audio
 import io
+import asyncio
 from pydub import AudioSegment
+from concurrent.futures import ThreadPoolExecutor
+
 
 router = APIRouter()
 
@@ -27,24 +31,21 @@ async def handle_stream_audio(websocket: WebSocket):
 
     try:
         audio_chunk_0 = await websocket.receive_bytes()
+        
+        with ThreadPoolExecutor() as executor:
+            while True:
+                audio_chunk = await websocket.receive_bytes()
 
-        while True:
-            audio_chunk = await websocket.receive_bytes()
+                combined_audio = audio_chunk_0 + audio_chunk
 
-            tmp = AudioSegment.from_file(io.BytesIO(audio_chunk_0 + audio_chunk))
-            audio_data = tmp[-100:]
-            byte_stream = io.BytesIO()
-            audio_data.export(byte_stream)
-            byte_stream.seek(0)
+                byte_stream = await asyncio.get_event_loop().run_in_executor(executor, process_audio, combined_audio)
 
-            await websocket.send_text('start transcription')
+                segments, _ = await get_transcription(byte_stream)
 
-            segments, _ = await get_transcription(byte_stream)
+                transcription = " ".join([segment.text for segment in segments])
 
-            transcription = " ".join([segment.text for segment in segments])
-
-            if transcription.strip():
-                await websocket.send_text(transcription)
+                if transcription.strip():
+                    await websocket.send_text(transcription)
 
     except Exception as e:
         await websocket.send_text(f"Error: {e}")
