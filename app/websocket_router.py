@@ -1,15 +1,13 @@
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from get_transcription import get_transcription
 from get_processed_audio import get_processed_audio
-import io
 import asyncio
-from pydub import AudioSegment
 from concurrent.futures import ThreadPoolExecutor
 
 
 router = APIRouter()
 
-@router.websocket("/upload/image")
+@router.websocket("/v1/image")
 async def handle_upload_image(websocket: WebSocket):
     await websocket.accept()
     n = await websocket.receive_text()
@@ -25,7 +23,7 @@ async def handle_upload_image(websocket: WebSocket):
     await websocket.send_text(f"Received {len(image_data)}")
 
 
-@router.websocket("/stream/audio")
+@router.websocket("/v1/audio")
 async def handle_stream_audio(websocket: WebSocket):
     await websocket.accept()
 
@@ -38,7 +36,7 @@ async def handle_stream_audio(websocket: WebSocket):
 
                 combined_audio = audio_chunk_0 + audio_chunk
 
-                byte_stream = await asyncio.get_event_loop().run_in_executor(executor, process_audio, combined_audio)
+                byte_stream = await asyncio.get_event_loop().run_in_executor(executor, get_processed_audio, combined_audio)
 
                 segments, _ = await get_transcription(byte_stream)
 
@@ -50,6 +48,7 @@ async def handle_stream_audio(websocket: WebSocket):
     except Exception as e:
         await websocket.send_text(f"Error: {e}")
     finally:
+        await websocket.send_text(f"closing websocket")
         await websocket.close()
 
 
