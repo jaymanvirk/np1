@@ -1,5 +1,5 @@
 async function stream_audio(){
-	const ws = new WebSocket("ws://localhost:8000/stream/audio");
+	const ws = new WebSocket("ws://localhost:8000/stream/v1/audio");
 	const transcriptionDiv = document.getElementById('chat_log');
 
 	ws.onopen = async () => {
@@ -28,7 +28,7 @@ async function stream_audio(){
 	            ws.send(event.data);
             }
         };
-        mediaRecorder.start(100);
+        mediaRecorder.start(500);
     })
     .catch(error => console.error("Error accessing microphone: ", error));
 };
