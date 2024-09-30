@@ -1,5 +1,5 @@
 async function upload_image(file){
-    const ws = new WebSocket("ws://localhost:8000/upload/image");
+    const ws = new WebSocket("ws://localhost:8000/stream/v1/image");
 
     ws.onopen = () => {
         const reader = new FileReader();
