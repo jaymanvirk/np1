@@ -14,7 +14,7 @@ SIGN_IN_LINK_URL = os.getenv("SIGN_IN_LINK_URL")
 COOKIE_SESSION_TOKEN_NAME = os.getenv("COOKIE_SESSION_TOKEN_NAME")
 
 
-@router.post("/send_sign_in_link")
+@router.post("/v1/send_sign_in_link")
 async def send_sign_in_link(request: Request):
     data = await request.json()
     dbs = MongoDBService()
@@ -31,7 +31,7 @@ async def send_sign_in_link(request: Request):
     return si_link
 
 
-@router.get("/verify_sign_in_link")
+@router.get("/v1/verify_sign_in_link")
 async def verify_sign_in_link(request: Request, token: str = Query(...)):
     dbs = MongoDBService()
     _filter = {"token": token} # has to be an environment variable
@@ -63,7 +63,7 @@ async def verify_sign_in_link(request: Request, token: str = Query(...)):
     return response
 
 
-@router.post("/start_user_session")
+@router.post("/v1/start_user_session")
 async def start_user_session(request: Request, response: Response):
     token = request.cookies.get(COOKIE_SESSION_TOKEN_NAME)
 
