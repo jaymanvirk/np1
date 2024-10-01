@@ -37,13 +37,13 @@ async def handle_stream_audio(websocket: WebSocket):
                 combined_audio = audio_chunk_0 + audio_chunk
 
                 byte_stream = await asyncio.get_event_loop().run_in_executor(executor, get_processed_audio, combined_audio)
+                await websocket.send_bytes(byte_stream.getvalue())
+                # segments, _ = await get_transcription(byte_stream)
 
-                segments, _ = await get_transcription(byte_stream)
+                # transcription = " ".join([segment.text for segment in segments])
 
-                transcription = " ".join([segment.text for segment in segments])
-
-                if transcription.strip():
-                    await websocket.send_text(transcription)
+                # if transcription.strip():
+                #     await websocket.send_text(transcription)
 
     except Exception as e:
         await websocket.send_text(f"Error: {e}")
