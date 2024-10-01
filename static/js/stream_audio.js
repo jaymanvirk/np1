@@ -13,12 +13,15 @@ async function stream_audio(){
 	ws.onmessage = async (event) => {
 		try {
 		    const data = event.data;
-	    	//transcriptionDiv.innerHTML += data + "<br>";
-	    	const buffer = await audioContext.decodeAudioData(data);
-	        const source = audioContext.createBufferSource();
-	        source.buffer = buffer;
-	        source.connect(audioContext.destination);
-	        source.start(0);
+		    if (typeof data === 'string'){
+	    		transcriptionDiv.innerHTML += data + "<br>";
+	    	} else {
+		    	const buffer = await audioContext.decodeAudioData(data);
+		        const source = audioContext.createBufferSource();
+		        source.buffer = buffer;
+		        source.connect(audioContext.destination);
+		        source.start(0);
+		    }
         } catch (error) {
             console.error("Error decoding audio data", error);
         };
