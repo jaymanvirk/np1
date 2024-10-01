@@ -3,7 +3,7 @@ from get_transcription import get_transcription
 from get_processed_audio import get_processed_audio
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-
+import numpy as np
 
 router = APIRouter()
 
@@ -37,7 +37,9 @@ async def handle_stream_audio(websocket: WebSocket):
                 combined_audio = audio_chunk_0 + audio_chunk
 
                 byte_stream = await asyncio.get_event_loop().run_in_executor(executor, get_processed_audio, combined_audio)
+                
                 await websocket.send_bytes(byte_stream.getvalue())
+
                 # segments, _ = await get_transcription(byte_stream)
 
                 # transcription = " ".join([segment.text for segment in segments])
