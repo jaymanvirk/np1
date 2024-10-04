@@ -5,11 +5,19 @@ services:
     container_name: fastapi
     build: .
     ports:
-      - "8000:80"
+      - "8000:8000"
     depends_on:
       - mongodb
     env_file:
       - dev.env
+
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    volumes:
+      - ./nginx/fastapi.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
 
   mongodb:
     container_name: mongodb
