@@ -21,3 +21,6 @@ Plan:
     5. Output top k similar photos
     6. Run similar photos through LLM
 
+TODO:
+1. Switch MongoDB to Cassandra
+
