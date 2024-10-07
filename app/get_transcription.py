@@ -1,13 +1,16 @@
-from faster_whisper import WhisperModel
-import os
+from whisper
+import io
 
-model_size = os.getenv("WHISPER_MODEL_SIZE")
+model_name = os.getenv("WHISPER_MODEL_NAME")
 device = os.getenv("WHISPER_DEVICE")
-compute_type = os.getenv("WHISPER_COMPUTE_TYPE")
-beam_size = int(os.getenv("WHISPER_BEAM_SIZE"))
-model = WhisperModel(model_size, device=device, compute_type=compute_type)
+model = whisper.load_modell(model_name, device=device)
 
+async def transcribe_audio(file_bytes: bytes) -> str:
+    audio_file = io.BytesIO(file_bytes)
 
-async def get_transcription(audio_data):
-    
-    return model.transcribe(audio_data, beam_size=beam_size)
+    audio = whisper.load_audio(audio_file)
+    audio = whisper.pad_or_trim(audio)
+
+    result = model.transcribe(audio)
+
+    return result["text"]
