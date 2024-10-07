@@ -3,14 +3,15 @@
 Plan:
 1. STT
     1. send audio data from JS to FastAPI
-    2. process audo for faster-whisper
-    3. faster-whisper
+    2. process audo for whisper turbo
+    3. whisper turbo
 2. AWS EC2
     1. g4dn.xlarge
     2. nginx
     3. access via public ip
 3. Text response generation
-    1. llama-cpp-python
+    1. llama3.2:1B
+    2. ollama
 4. Text-to-speech
     1. OpenVoice
     2. StyleTTS
