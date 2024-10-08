@@ -1,4 +1,4 @@
-from whisper
+import whisper
 
 
 model_name = os.getenv("WHISPER_MODEL_NAME")
