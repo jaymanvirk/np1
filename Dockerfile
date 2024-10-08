@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:latest
+FROM python:3.12
 
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
 
