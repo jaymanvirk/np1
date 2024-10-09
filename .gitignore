@@ -2,4 +2,4 @@
 dev.env
 **.sh
 /volumes
-/app/model_checkpoints
+/model_checkpoints
