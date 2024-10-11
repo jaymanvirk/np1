@@ -4,7 +4,7 @@ Plan:
 1. STT
     1. send audio data from JS to FastAPI
     2. process audo for whisper turbo
-    3. whisper turbo
+    3. whisper large-v3-turbo
 2. AWS EC2
     1. g4dn.xlarge
     2. nginx
