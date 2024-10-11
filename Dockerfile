@@ -10,7 +10,7 @@ ENV WHISPER_CACHE_DIR=/root/.cache/whisper
 RUN mkdir -p $WHISPER_CACHE_DIR
 
 # Copy the saved checkpoint from your local machine to the container
-COPY /model_checkpoints/stt/large-v3-turbo.pt $WHISPER_CACHE_DIR/
+#COPY /model_checkpoints/stt/large-v3-turbo.pt $WHISPER_CACHE_DIR/
 
 # Set the working directory in the container
 WORKDIR /app
