@@ -9,6 +9,7 @@ Plan:
     1. g4dn.xlarge
     2. nginx
     3. access via public ip
+    4. route 53
 3. Text response generation
     1. llama3.2:1B
     2. ollama
