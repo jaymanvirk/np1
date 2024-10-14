@@ -4,7 +4,7 @@ import os
 
 model_checkpoint = os.getenv("WHISPER_MODEL_CHECKPOINT")
 device = os.getenv("WHISPER_DEVICE")
-model = whisper.load_model(model_checkpoint, device=device) 
+model = whisper.load_model(model_checkpoint).to(device) 
 
 async def get_transcription(byte_stream) -> str:
     audio = whisper.load_audio(byte_stream)
