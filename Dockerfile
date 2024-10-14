@@ -3,10 +3,6 @@ FROM python:3.12-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
 
-COPY ./nginx.conf.template /etc/nginx/nginx.conf.template
-
-CMD ["sh", "-c", "envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
-
 # Set environment variables if needed
 #ENV WHISPER_CACHE_DIR=/root/.cache/whisper
 
