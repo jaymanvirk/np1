@@ -20,7 +20,7 @@ services:
     container_name: nginx
     image: nginx:latest
     volumes:
-      - ./nginx/fastapi.conf:/etc/nginx/nginx.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - "80:80"
     env_file:
