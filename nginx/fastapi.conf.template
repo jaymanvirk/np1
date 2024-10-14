@@ -15,7 +15,7 @@ http {
 
     # Upstream definition
     upstream fastapi {
-        server $IP_ADDRESS:8000; 
+        server ${IP_ADDRESS}:8000; 
     }
 
     # Server block
