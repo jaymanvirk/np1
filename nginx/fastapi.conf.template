@@ -19,7 +19,7 @@ http {
     # Server block
     server {
         listen 80;
-        server_name localhost;
+        server_name _;
 
         # Apply rate limiting
         limit_req zone=mylimit burst=70 nodelay;
