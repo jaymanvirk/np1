@@ -8,6 +8,13 @@ services:
       - nginx
     env_file:
       - dev.env
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
   nginx:
     container_name: nginx
@@ -16,4 +23,5 @@ services:
       - ./nginx/fastapi.conf:/etc/nginx/nginx.conf
     ports:
       - "80:80"
-
+    env_file:
+      - dev.env
