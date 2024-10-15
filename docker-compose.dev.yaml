@@ -20,9 +20,9 @@ services:
     container_name: nginx
     image: nginx:latest
     volumes:
-      - ./nginx/fastapi.conf.template:/etc/nginx/nginx.conf.template
+      - ./nginx/fastapi.conf:/etc/nginx/nginx.conf
     ports:
       - "80:80"
     env_file:
       - dev.env
-    command: ["sh", "-c", "envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
+    command: ["sh", "nginx -g 'daemon off;'"]
