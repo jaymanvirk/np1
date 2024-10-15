@@ -65,7 +65,7 @@ async def verify_sign_in_link(request: Request, token: str = Query(...)):
 
 @router.post("/v1/start_user_session")
 async def start_user_session(request: Request, response: Response):
-    return get_main_html()
+    return get_main_html("")
     #    token = request.cookies.get(COOKIE_SESSION_TOKEN_NAME)
     #
     #    dbs = MongoDBService()
