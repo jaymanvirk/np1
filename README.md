@@ -1,6 +1,6 @@
 # Speech-to-text, Text response generation, Text-to-speech, Reverse image search
 
-Plan:
+## Plan:
 1. STT
     1. send audio data from JS to FastAPI
     2. process audo for whisper turbo
@@ -23,6 +23,9 @@ Plan:
     5. Output top k similar photos
     6. Run similar photos through LLM
 
-TODO:
+## TODO:
 1. Switch MongoDB to Cassandra
+
+## License
+This project is licensed under the MIT License.
 
