@@ -66,48 +66,48 @@ async def verify_sign_in_link(request: Request, token: str = Query(...)):
 @router.post("/v1/start_user_session")
 async def start_user_session(request: Request, response: Response):
     return get_main_html("")
-    #    token = request.cookies.get(COOKIE_SESSION_TOKEN_NAME)
-    #
-    #    dbs = MongoDBService()
-    #    uid = None
-    #    _filter = {"token": token}
-    #    user_profile = {}
-    #
-    #    if token:
-    #        user_session = await dbs.get_document(QueryParams(COLLECTION_SESSIONS, _filter))
-    #        if user_session:
-    #            uid = user_session["user_id"]
-    #            if uid and not is_token_expired(user_session["created_at"], {"days": 15}): # has to be an environment variable
-    #                qp = QueryParams(collection = COLLECTION_SESSIONS
-    #                                    , _filter = _filter
-    #                                    , _from = COLLECTION_PROFILES
-    #                                    , local_field = "user_id" # has to be an environment variable
-    #                                    , foreign_field = "_id"
-    #                                    , _as = "user_profile"
-    #                                    , project = {"_id": 0}
-    #                                    )
-    #                user_profile = await dbs.get_join_documents(qp)
-    #
-    #    data = get_token()
-    #    data["user_id"] = uid # has to be an environment variable
-    #    await dbs.set_document(QueryParams(COLLECTION_SESSIONS, _filter, data))
-    #
-    #    response.set_cookie(
-    #        key = COOKIE_SESSION_TOKEN_NAME # has to be an environment variable
-    #        , value = data["token"] # has to be an environment variable
-    #        , httponly = True
-    #        #, secure = True # https only
-    #    )
-    #
-    #    return get_main_html(user_profile)
-    #
+#        token = request.cookies.get(COOKIE_SESSION_TOKEN_NAME)
+#    
+#        dbs = MongoDBService()
+#        uid = None
+#        _filter = {"token": token}
+#        user_profile = {}
+#    
+#        if token:
+#            user_session = await dbs.get_document(QueryParams(COLLECTION_SESSIONS, _filter))
+#            if user_session:
+#                uid = user_session["user_id"]
+#                if uid and not is_token_expired(user_session["created_at"], {"days": 15}): # has to be an environment variable
+#                    qp = QueryParams(collection = COLLECTION_SESSIONS
+#                                        , _filter = _filter
+#                                        , _from = COLLECTION_PROFILES
+#                                        , local_field = "user_id" # has to be an environment variable
+#                                        , foreign_field = "_id"
+#                                        , _as = "user_profile"
+#                                        , project = {"_id": 0}
+#                                        )
+#                    user_profile = await dbs.get_join_documents(qp)
+#    
+#        data = get_token()
+#        data["user_id"] = uid # has to be an environment variable
+#        await dbs.set_document(QueryParams(COLLECTION_SESSIONS, _filter, data))
+#    
+#        response.set_cookie(
+#            key = COOKIE_SESSION_TOKEN_NAME # has to be an environment variable
+#            , value = data["token"] # has to be an environment variable
+#            , httponly = True
+#            #, secure = True # https only
+#        )
+#    
+#        return get_main_html(user_profile)
+#    
 #from motor.motor_asyncio import AsyncIOMotorClient
-
-@router.on_event("startup")
-async def startup_event():
-    try:
-        client = AsyncIOMotorClient("mongodb://mongodb")
-        await client.server_info()
-    except Exception as e:
-        print(f"Error connecting to MongoDB: {e}")
-        raise
+#
+#@router.on_event("startup")
+#async def startup_event():
+#    try:
+#        client = AsyncIOMotorClient("mongodb://mongodb")
+#        await client.server_info()
+#    except Exception as e:
+#        print(f"Error connecting to MongoDB: {e}")
+#        raise
