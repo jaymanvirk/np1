@@ -1,5 +1,5 @@
 async function stream_audio(){
-	const ws = new WebSocket("ws://localhost:8000/stream/v1/audio");
+	const ws = new WebSocket("wss://kompjuut.com/stream/v1/audio");
 	ws.binaryType = "arraybuffer";
 	const transcriptionDiv = document.getElementById('chat_log');
 	const audioElement = document.getElementById('audio');
