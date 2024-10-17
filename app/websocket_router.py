@@ -46,12 +46,9 @@ async def process_queue(websocket: WebSocket
         audio_state.combined_audio += audio_chunk
         ln = len(audio_state.combined_audio)
 
-        byte_stream = await get_processed_audio(audio_state.combined_audio)
+        audio_data = await get_processed_audio(audio_state.combined_audio)
 
-        try:
-            transcription = await get_transcription(byte_stream.getvalue())
-        finally:
-            byte_stream.close()
+        transcription = await get_transcription(audio_data)
 
         if transcription:
             if audio_state.prev_transcription == transcription:
