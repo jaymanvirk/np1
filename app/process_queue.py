@@ -1,5 +1,5 @@
 from get_processed_audio import get_processed_audio
-from get_transcripion import get_transcription
+from get_transcription import get_transcription
 from send_generated_speech import send_generated_speech
 
 
