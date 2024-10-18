@@ -7,6 +7,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -r
 # Set the working directory in the container
 WORKDIR /app
 
+# Install Parler-TTS by HuggingFace
+RUN pip install git+https://github.com/huggingface/parler-tts.git
+
 # Copy requirements.txt first to leverage caching
 COPY requirements.txt .
 
