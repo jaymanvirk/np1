@@ -1,3 +1,6 @@
+import asyncio
+
+
 class AudioState:
     def __init__(self):
         self.audio_chunk_0 = b''
