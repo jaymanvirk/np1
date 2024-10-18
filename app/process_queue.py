@@ -1,6 +1,7 @@
 from get_processed_audio import get_processed_audio
 from get_transcription import get_transcription
 from send_generated_speech import send_generated_speech
+import time
 
 
 async def process_queue(websocket
@@ -22,7 +23,7 @@ async def process_queue(websocket
             if transcription:
                 if audio_state.prev_transcription == transcription:
                     audio_state.combined_audio = audio_state.audio_chunk_0 + audio_chunk
-                    await send_generated_speech(transcription, "female voice", websocket)
+                    #await send_generated_speech(transcription, "female voice", websocket)
                 else:
                    audio_state.prev_transcription = transcription
                 t = time.time() - st
