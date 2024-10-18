@@ -5,7 +5,7 @@ from transformers import AutoTokenizer
 torch_device = "cuda"
 torch_dtype = torch.bfloat16
 model_name = "parler-tts/parler-tts-mini-v1"
-attn_implementation = "flash_attention_2"
+attn_implementation = "sdpa"
 
 # Load model and tokenizer
 tokenizer = AutoTokenizer.from_pretrained(model_name)
