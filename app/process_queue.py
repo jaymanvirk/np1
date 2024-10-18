@@ -3,9 +3,9 @@ from get_transcription import get_transcription
 from send_generated_speech import send_generated_speech
 
 
-async def process_queue(websocket: WebSocket
-                        , queue: asyncio.Queue
-                        , audio_state: AudioState):
+async def process_queue(websocket
+                        , queue
+                        , audio_state):
     while True:
         st = time.time()
         audio_chunk = await queue.get()
