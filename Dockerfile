@@ -10,7 +10,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Install Parler-TTS by HuggingFace
-RUN pip install git+https://github.com/huggingface/parler-tts.git
+#RUN pip install git+https://github.com/huggingface/parler-tts.git
 
 # Copy requirements.txt first to leverage caching
 COPY requirements.txt .
