@@ -2,7 +2,6 @@ from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from process_queue import process_queue
 from audio_state import AudioState
 import asyncio
-import time
 
 
 router = APIRouter()
