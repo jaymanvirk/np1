@@ -1,19 +1,11 @@
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
-from get_transcription import get_transcription
-from get_processed_audio import get_processed_audio
+from process_queue import process_queue
+from audio_state import AudioState
 import asyncio
 import time
 
 
 router = APIRouter()
-
-class AudioState:
-    def __init__(self):
-        self.audio_chunk_0 = b''
-        self.combined_audio = b''
-        self.prev_transcription = ""
-        # Lock for synchronizing access to shared state
-        self.lock = asyncio.Lock()  
 
 @router.websocket("/v1/audio")
 async def handle_stream_audio(websocket: WebSocket):
@@ -36,33 +28,6 @@ async def handle_stream_audio(websocket: WebSocket):
     finally:
         await websocket.send_text(f"closing websocket")
         await websocket.close()
-
-
-async def process_queue(websocket: WebSocket
-                        , queue: asyncio.Queue
-                        , audio_state: AudioState):
-    while True:
-        st = time.time()
-        audio_chunk = await queue.get()
-        # Ensure exclusive access to shared state
-        async with audio_state.lock:  
-            audio_state.combined_audio += audio_chunk
-            ln = len(audio_state.combined_audio)
-
-        audio_data = await get_processed_audio(audio_state.combined_audio)
-
-        transcription = await get_transcription(audio_data)
-        # Lock again for state updates
-        async with audio_state.lock:  
-            if transcription:
-                if audio_state.prev_transcription == transcription:
-                    audio_state.combined_audio = audio_state.audio_chunk_0 + audio_chunk
-                else:
-                   audio_state.prev_transcription = transcription
-                t = time.time() - st
-
-                await websocket.send_text(f"time: {t:.3f} | length: {ln} | {transcription}")
-
 
 @router.websocket("/v1/image")
 async def handle_upload_image(websocket: WebSocket):
