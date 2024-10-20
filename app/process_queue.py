@@ -9,7 +9,7 @@ async def process_queue(websocket
                         , audio_state):
     while True:
         st = time.time()
-        audio_chunk = await queue.get()
+        counter, audio_chunk = await queue.get()
         # Ensure exclusive access to shared state
         async with audio_state.lock:  
             audio_state.combined_audio += audio_chunk
@@ -21,13 +21,17 @@ async def process_queue(websocket
         # Lock again for state updates
         async with audio_state.lock:  
             if transcription:
+
                 if audio_state.prev_transcription == transcription:
                     audio_state.combined_audio = audio_state.audio_chunk_0 + audio_chunk
                     #await send_generated_speech(transcription, "female voice", websocket)
+                    await websocket.send_text(f"chunk: {counter} | pause")
+
                 else:
                    audio_state.prev_transcription = transcription
                 t = time.time() - st
 
-                await websocket.send_text(f"time: {t:.3f} | length: {ln} | {transcription}")
-
+                await websocket.send_text(f"chunk: {counter} | time: {t:.3f} | length: {ln} | {transcription}")
+            else:
+                await websocket.send_text("chunk: {counter} | silence")
 
