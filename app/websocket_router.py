@@ -16,10 +16,11 @@ async def handle_stream_audio(websocket: WebSocket):
     try:
         audio_state.audio_chunk_0 = await websocket.receive_bytes()
         audio_state.combined_audio = audio_state.audio_chunk_0
-
+        counter = 0
         while True:
             audio_chunk = await websocket.receive_bytes()
-            await queue.put(audio_chunk)
+            counter += 1
+            await queue.put((counter, audio_chunk))
 
     except Exception as e:
         await websocket.send_text(f"Error: {e}")
