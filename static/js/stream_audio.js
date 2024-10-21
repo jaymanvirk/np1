@@ -14,6 +14,7 @@ async function stream_audio(){
             const data = event.data;
             if (typeof data === 'string'){
                 chat_log.innerHTML += data + "<br>";
+                scroll_to_bottom();
             } else {
                 const buffer = await audio_context.decodeAudioData(data);
                 const source = audio_context.createBufferSource();
