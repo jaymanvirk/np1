@@ -1,6 +1,6 @@
 def get_main_html(data):
     logomark = '''
-             <div id="logomark">
+               <div id="logomark" class="padded-5px display-ib">
                 <table>
                     <tr>
                         <td class="bg-black"></td>
@@ -19,23 +19,25 @@ def get_main_html(data):
                     </tr>
                 </table>
             </div>
-    '''
+   '''
 
     logotype = '''
-            <div id="logotype">
-                kompjuut
+            <div id="logotype" class="display-ib">
+                kompjuut [alpha]
             </div>
     '''
 
     header = f'''
-         <div id="header" class="fixed top">
+         <div id="header">
+            <div id="nav" class="bg-white padded-15px margin-auto max-width-600px">
            {logomark}
            {logotype}
+           </div>
        </div>
     '''
 
-    main = '''
-        <div id="main">
+    content = '''
+       <div id="content" class="padded-15px margin-auto max-width-600px">
             <div id="chat_log">
             </div>
         </div>
@@ -43,7 +45,7 @@ def get_main_html(data):
 
     html = f'''
        {header}
-       {main}
+       {content}
     '''
 
     return html
