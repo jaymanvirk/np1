@@ -1,0 +1,28 @@
+table {
+    border-collapse: separate;
+    border-spacing: 1px;
+}
+
+td {
+    width: 2px;
+    height: 2px;
+    border: 1px solid red;
+}
+
+.bg-black {
+    background-color: black;
+}
+
+.bg-white {
+    background-color: white;
+}
+
+.top {
+    top: 0;
+    z-index: 100;
+    width: 100%;
+}
+
+.fixed-top-div {
+    position: fixed;
+}
