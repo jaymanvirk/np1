@@ -1,12 +1,15 @@
+body {
+    margin: 0;
+}
+
 table {
-    border-collapse: separate;
-    border-spacing: 1px;
+    border-spacing: 0;
 }
 
 td {
-    width: 2px;
-    height: 2px;
-    border: 1px solid red;
+    width: 7px;
+    height: 7px;
+    border: 0;
 }
 
 .bg-black {
@@ -17,12 +20,50 @@ td {
     background-color: white;
 }
 
-.top {
-    top: 0;
-    z-index: 100;
+#header {
+    position: fixed;
     width: 100%;
+    padding: 0;
+    margin: 0;
 }
 
-.fixed {
-    position: fixed;
+#nav {
+    padding-bottom: 5px !important;
 }
+
+.padded-5px {
+    padding: 5px;
+}
+
+.padded-15px {
+    padding: 15px;
+}
+
+.margin-auto {
+    margin:auto;
+}
+
+.max-width-600px {
+    max-width: 600px;
+}
+
+.display-ib {
+    display: inline-block;
+}
+
+#logomark {
+    border: 1px solid black;
+}
+
+#logotype {
+    font-size: 28px;
+    font-family: system-ui;
+    margin-top: 6px;
+    position: fixed;
+    margin-left: 10px;
+}
+
+#content {
+    padding-top: 75px !important;
+}
+
