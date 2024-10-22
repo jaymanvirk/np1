@@ -26,19 +26,21 @@ def get_main_html(data):
                 kompjuut [alpha]
             </div>
     '''
-
-    header = f'''
-         <div id="header">
-            <div id="nav" class="bg-white padded-15px margin-auto max-width-600px">
+    nav = f'''
+         <div id="nav" class="display-flex bg-white padded-15px margin-auto max-width-600px">
            {logomark}
            {logotype}
-           </div>
-       </div>
+        </div>
+    '''
+    header = f'''
+         <div id="header">
+           {nav}
+         </div>
     '''
 
     content = '''
        <div id="content" class="padded-15px margin-auto max-width-600px">
-            <div id="chat_log">
+            <div id="chat">
             </div>
         </div>
     '''
