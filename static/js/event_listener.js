@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button_sign_in_link.addEventListener('click', send_sign_in_link);
     }
 
-    const button_stream_audio = document.getElementById('chat_log');
+    const button_stream_audio = document.getElementById('chat');
     if (button_stream_audio){
         stream_audio();
     }
