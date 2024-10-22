@@ -25,13 +25,13 @@ async def process_queue(websocket
                 if audio_state.prev_transcription == transcription:
                     audio_state.combined_audio = audio_state.audio_chunk_0 + audio_chunk
                     #await send_generated_speech(transcription, "female voice", websocket)
-                    await websocket.send_text(f"chunk: {counter} | pause")
+                    await websocket.send_text(f'{{"sender":{{"name":"You"}}, "media":{{"text": "chunk: {counter} | pause"}}')
 
                 else:
                    audio_state.prev_transcription = transcription
                 t = time.time() - st
 
-                await websocket.send_text(f"chunk: {counter} | time: {t:.3f} | length: {ln} | {transcription}")
+                await websocket.send_text(f'{{"sender":{{"name":"You"}}, "media":{{"text": "chunk: {counter} | time: {t:.3f} | length: {ln} | {transcription}"}}')
             else:
-                await websocket.send_text("chunk: {counter} | silence")
+                await websocket.send_text(f'{{"sender":{{"name":"You"}}, "media":{{"chunk: {counter} | silence"}}')
 
