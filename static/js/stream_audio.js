@@ -1,7 +1,7 @@
 async function stream_audio(){
     const ws = new WebSocket("wss://kompjuut.com/stream/v1/audio");
     ws.binaryType = "arraybuffer";
-    const chat_log = document.getElementById('chat_log');
+    const chat = document.getElementById('chat');
 
     const audio_context = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -13,7 +13,7 @@ async function stream_audio(){
         try {
             const data = event.data;
             if (typeof data === 'string'){
-                chat_log.innerHTML += data + "<br>";
+                chat.innerHTML += get_message(data);
                 scroll_to_bottom();
             } else {
                 const buffer = await audio_context.decodeAudioData(data);
