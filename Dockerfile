@@ -9,8 +9,16 @@ RUN apt-get update && \
 # Set the working directory in the container
 WORKDIR /app
 
-# Install Parler-TTS by HuggingFace
-#RUN pip install git+https://github.com/huggingface/parler-tts.git
+# Download whisper module
+RUN pip install --upgrade pip && \
+    pip install git+https://github.com/openai/whisper.git
+
+# Create a directory for model checkpoints
+RUN mkdir -p /app/model_checkpoints
+
+# Download the Whisper Turbo model
+RUN python -c "import whisper; \
+    model = whisper.load_model('tiny', download_root='/app/model_checkpoints');"
 
 # Copy requirements.txt first to leverage caching
 COPY requirements.txt .
