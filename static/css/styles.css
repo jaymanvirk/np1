@@ -1,12 +1,13 @@
 body {
     margin: 0;
+    font-family: system-ui;
 }
 
-table {
+#logomark table {
     border-spacing: 0;
 }
 
-td {
+#logomark td {
     width: 7px;
     height: 7px;
     border: 0;
@@ -51,6 +52,25 @@ td {
     display: inline-block;
 }
 
+.display-flex {
+    display: flex;
+}
+
+.message {
+    display: flex;
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+
+.sender {
+    flex: 0 0 40px;
+    text-align: right;
+}
+
+.media-content {
+    padding-left: 10.5px;
+}
+
 #logomark {
     border: 1px solid black;
 }
@@ -59,8 +79,11 @@ td {
     font-size: 28px;
     font-family: system-ui;
     margin-top: 6px;
-    position: fixed;
     margin-left: 10px;
+}
+
+#nav {
+    padding-top: 20px !important;
 }
 
 #content {
