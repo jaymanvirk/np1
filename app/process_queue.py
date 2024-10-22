@@ -31,7 +31,7 @@ async def process_queue(websocket
                    audio_state.prev_transcription = transcription
                 t = time.time() - st
 
-                await websocket.send_text(f'{{"sender":{{"name":"You"}}, "media":{{"text": "chunk: {counter} | time: {t:.3f} | length: {ln} | {transcription}"}}}}')
+                await websocket.send_text(f'{{"sender":{{"name":"You"}}, "media":{{"text": "chunk: {counter} | time: {t:.3f} | length: {ln} | {transcription.replace("\"", "\\\"")}"}}}}')
             else:
-                await websocket.send_text(f'{{"sender":{{"name":"You"}}, "media":{{"chunk: {counter} | silence"}}}}')
+                await websocket.send_text(f'{{"sender":{{"name":"You"}}, "media":{{"text": "chunk: {counter} | silence"}}}}')
 
