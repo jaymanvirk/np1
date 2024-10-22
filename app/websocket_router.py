@@ -26,7 +26,6 @@ async def handle_stream_audio(websocket: WebSocket):
         await websocket.send_text(f"Error: {e}")
 
     finally:
-        await websocket.send_text(f"closing websocket")
         await websocket.close()
 
 @router.websocket("/v1/image")
