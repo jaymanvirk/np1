@@ -2,19 +2,19 @@
 
 ## TODO:
 1. STT
-    1. send mic data from JS to FastAPI
-    2. process audo for whisper 
-    3. whisper transcription 
-2. AWS EC2
-    1. g4dn.xlarge
-    2. nginx
-    3. access via public ip
-    4. route 53
+    1. [x] send mic data from JS to FastAPI
+    2. [x] process audo for whisper 
+    3. [x] whisper transcription 
+2. EC2
+    1. [x] g4dn.xlarge
+    2. [x] nginx
+    3. [x] access via public ip
+    4. [x] route 53
 3. Text response generation
-    1. llama 3
+    1. [x] llama 3
     2. ollama
 4. Text-to-speech
-    1. F5 TTS 
+    1. F5 TTS
 5. Switch MongoDB to Cassandra
 6. RIS
     1. Milvus DB
