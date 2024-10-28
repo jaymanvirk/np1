@@ -13,11 +13,19 @@ body {
     border: 0;
 }
 
-.bg-black {
+.color-white {
+    color: white;
+}
+
+.color-black {
+    color: black;
+}
+
+.bg-color-black {
     background-color: black;
 }
 
-.bg-white {
+.bg-color-white {
     background-color: white;
 }
 
@@ -72,7 +80,7 @@ body {
 }
 
 #logomark {
-    border: 1px solid black;
+    border: 1px solid white;
 }
 
 #logotype {
