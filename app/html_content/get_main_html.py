@@ -3,19 +3,19 @@ def get_main_html(data):
                <div id="logomark" class="padded-5px display-ib">
                 <table>
                     <tr>
-                        <td class="bg-black"></td>
-                        <td class="bg-white"></td>
-                        <td class="bg-black"></td>
+                        <td class="bg-color-white"></td>
+                        <td class="bg-color-black"></td>
+                        <td class="bg-color-white"></td>
                     </tr>
                     <tr>
-                        <td class="bg-black"></td>
-                        <td class="bg-black"></td>
-                        <td class="bg-white"></td>
+                        <td class="bg-color-white"></td>
+                        <td class="bg-color-white"></td>
+                        <td class="bg-color-black"></td>
                     </tr>
                     <tr>
-                        <td class="bg-black"></td>
-                        <td class="bg-white"></td>
-                        <td class="bg-black"></td>
+                        <td class="bg-color-white"></td>
+                        <td class="bg-color-black"></td>
+                        <td class="bg-color-white"></td>
                     </tr>
                 </table>
             </div>
@@ -27,7 +27,7 @@ def get_main_html(data):
             </div>
     '''
     nav = f'''
-         <div id="nav" class="display-flex bg-white padded-15px margin-auto max-width-600px">
+         <div id="nav" class="display-flex padded-15px margin-auto max-width-600px">
            {logomark}
            {logotype}
         </div>
