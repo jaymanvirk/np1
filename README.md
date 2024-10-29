@@ -12,7 +12,7 @@
     4. [x] route 53
 3. Text response generation
     1. [x] llama 3
-    2. ollama
+    2. [x] ollama
 4. Text-to-speech
     1. F5 TTS
 5. Switch MongoDB to Cassandra
