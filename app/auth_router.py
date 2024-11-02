@@ -1,8 +1,8 @@
 from fastapi import Request, Response, APIRouter, Query
 from fastapi.responses import RedirectResponse
-from models import MongoDBService, QueryParams, is_token_expired, get_token
-from html_content.get_sign_in_html import get_sign_in_html
-from html_content.get_main_html import get_main_html
+from db_utils import MongoDBService, QueryParams, is_token_expired, get_token
+from html.get_sign_in_html import get_sign_in_html
+from html.get_main_html import get_main_html
 import os
 
 router = APIRouter()

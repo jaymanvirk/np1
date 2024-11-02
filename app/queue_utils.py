@@ -1,6 +1,5 @@
-from get_processed_audio import get_processed_audio
-from get_transcription import get_transcription
-from send_generated_speech import send_generated_speech
+from audio_utils import get_processed_audio
+from transcription_utils import get_transcription
 import time
 
 

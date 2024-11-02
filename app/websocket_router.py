@@ -1,6 +1,6 @@
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
-from process_queue import process_queue
-from audio_state import AudioState
+from queue_utils import process_queue
+from audio_manager import AudioState
 import asyncio
 
 
