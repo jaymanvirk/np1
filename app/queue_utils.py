@@ -23,12 +23,11 @@ async def process_queue(websocket
 
                 if audio_state.prev_transcription == transcription:
                     audio_state.combined_audio = audio_state.audio_chunk_0 + audio_chunk
-                    transcription = "thought complete?"
+                    await process_ollama_request(websocket, model_name, transcription)
                 else:
                    audio_state.prev_transcription = transcription
             else:
                 audio_state.combined_audio = audio_state.audio_chunk_0
-                transcription = "silence"
 
             t = time.time() - st
             await websocket.send_text(f'{{"sender":{{"name":"You"}}, "media":{{"text": "chunk: {counter} | time: {t:.3f} | length: {ln} | {transcription.replace("\"", "\\\"")}"}}}}')
