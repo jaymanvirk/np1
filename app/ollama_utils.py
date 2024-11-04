@@ -17,9 +17,10 @@ async def get_response(process):
     return output.strip() if output else None
 
 
-async def stream_ollama_output(websocket, process):
+async def stream_ollama_output(websocket, str_input: str):
     """Function to stream output from the Ollama subprocess."""
     try:
+        process = await send_input_to_ollama(model_name, str_input)
         while True:
             output = await get_response(process)
             if output:
@@ -30,21 +31,15 @@ async def stream_ollama_output(websocket, process):
         await websocket.send_text(f"Error while reading output: {e}")
 
 
-async def process_ollama_request(websocket, model_name: str, str_input: str):
-    """Process a single Ollama request."""
-    process = await send_input_to_ollama(model_name, str_input)
-    await stream_ollama_output(websocket, process)
-
-
-async def is_thought_complete(str_input: str):
+async def is_thought_complete(model_name, str_input: str):
     """Function to check if the input thought is complete"""
-    prompt = '''
+    intsruction = '''
+                Answer "True" or "False" to the following question:
                 Is the thought of the following sentence complete?
-                Answer "YES" if complete otherwise answer "NO".
-                Here is the sentence:
+                Sentence: 
             '''
-    prompt += str_input
+    prompt = instruction + str_input
 
-    process = await send_input_to_ollama(model_name, str_input)
+    process = await send_input_to_ollama(model_name, prompt)
 
     return await get_response(process)
