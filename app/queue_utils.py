@@ -23,7 +23,9 @@ async def process_queue(websocket
 
                 if audio_state.prev_transcription == transcription:
                     audio_state.combined_audio = audio_state.audio_chunk_0 + audio_chunk
-                    await process_ollama_request(websocket, model_name, transcription)
+                    thought_complete = await is_thought_complete("llama3.2:3b", transcription)
+                    if bool(thought_complete):
+                        await stream_ollama_output(websocket, "llama3.2:3b", transcription)
                 else:
                    audio_state.prev_transcription = transcription
             else:
