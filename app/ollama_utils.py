@@ -24,7 +24,8 @@ async def stream_ollama_output(websocket, str_input: str):
         while True:
             output = await get_response(process)
             if output:
-                await websocket.send_text(output.strip())
+                output = output.replace("\"", "\\\"")
+                await websocket.send_text(f'{{"sender":{{"name":"K"}}, "media":{{"text": {output}}}}}') 
             else:
                 break
     except Exception as e:
