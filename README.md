@@ -2,8 +2,11 @@
 
 ## Stack
 - Whisper STT
-- LLaMA 3
+- LLaMA 3+
 - F5 TTS
+- Fast API
+- Milvus
+- Memcached
 
 ## TODO:
 - [ ] Switch MongoDB to Cassandra
