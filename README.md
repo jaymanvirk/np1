@@ -7,6 +7,7 @@
 - Fast API
 - Milvus
 - Memcached
+- Cassandra
 
 ## TODO:
 - [ ] Switch MongoDB to Cassandra
