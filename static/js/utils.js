@@ -4,6 +4,8 @@ function scroll_to_bottom() {
 
 
 function get_message(data) {
+    //TODO:
+    //check for the flag "thought complete" to add new message or update existing one
     data = JSON.parse(data)
     html = `
         <div class="message">
