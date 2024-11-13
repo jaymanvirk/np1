@@ -3,7 +3,7 @@
 ## Stack
 - Whisper STT
 - LLaMA 3+
-- F5 TTS
+- Piper TTS
 - Fast API
 - Milvus
 - Memcached
