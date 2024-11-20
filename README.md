@@ -11,6 +11,7 @@
 
 ## TODO:
 - [ ] Switch MongoDB to Cassandra
+- [ ] Sanitize middleware
 
 ## License
 This project is licensed under the MIT License.
