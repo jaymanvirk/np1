@@ -8,6 +8,7 @@
 - Milvus
 - Memcached
 - Cassandra
+- Docker
 
 ## TODO:
 - [ ] Switch MongoDB to Cassandra
