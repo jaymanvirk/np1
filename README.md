@@ -2,7 +2,7 @@
 
 ## Stack
 - Whisper STT
-- LLaMA 3+
+- LLaMA 3.2
 - Piper TTS
 - Fast API
 - Milvus
