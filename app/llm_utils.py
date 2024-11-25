@@ -1,5 +1,5 @@
 import asyncio
-from ollama_manager import ollama_manager
+from llm_manager import ollama_manager
 
 
 async def send_input_to_ollama(model_name: str, str_input: str):
