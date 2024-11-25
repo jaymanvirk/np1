@@ -31,18 +31,3 @@ async def handle_stream_audio(websocket: WebSocket):
         ollama_manager.stop_process(model)
         await websocket.close()
 
-@router.websocket("/v1/image")
-async def handle_upload_image(websocket: WebSocket):
-    await websocket.accept()
-    n = await websocket.receive_text()
-    n = int(float(n)) + 1
-    image_data = b''
-    while n:
-        try:
-            image_data += await websocket.receive_bytes()
-            n -= 1
-        except Exception as e:
-            break
-
-    await websocket.send_text(f"Received {len(image_data)}")
-
