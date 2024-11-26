@@ -23,6 +23,15 @@ RUN python -c "import whisper; \
 # Copy requirements.txt first to leverage caching
 COPY requirements.txt .
 
+# Install ollama
+RUN curl -sSL https://ollama.com/install.sh | sh
+
+# Make sure the Ollama binary is executable
+RUN chmod +x /usr/local/bin/ollama
+
+# Download Llama 3.2:3B model
+RUN ollama run llama3.2:3b
+
 # Use a cache mount for pip installations
 RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 
