@@ -13,7 +13,7 @@ async function stream_audio(){
         try {
             const data = event.data;
             if (typeof data === 'string'){
-                chat.innerHTML += get_message(data);
+                process_message(data);
                 scroll_to_bottom();
             } else {
                 const buffer = await audio_context.decodeAudioData(data);
