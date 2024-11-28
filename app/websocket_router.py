@@ -1,6 +1,6 @@
 from fastapi import WebSocket, APIRouter
 from queue_utils import process_queue
-from audio_manager import AudioState
+from stt_manager import AudioState
 from ollama_manager import ollama_manager
 import asyncio
 
