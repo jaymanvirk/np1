@@ -1,4 +1,4 @@
-from audio_utils import get_processed_audio
+from stt_utils import get_processed_audio
 from transcription_utils import get_transcription
 from llm_utils import is_thought_complete, stream_ollama_output
 
@@ -23,6 +23,7 @@ async def process_queue(websocket
                     audio_state.combined_audio = audio_state.audio_chunk_0 + audio_chunk
                     thought_complete = await is_thought_complete("llama3.2:3b", transcription)
                     if bool(thought_complete):
+                        audio_state.id += 1 
                         await stream_ollama_output(websocket, "llama3.2:3b", transcription)
                 else:
                    audio_state.prev_transcription = transcription
@@ -35,6 +36,10 @@ async def process_queue(websocket
                         "sender":
                             {{
                                 "name":"You"
+                            }}
+                        , "meta":
+                            {{
+                                "id": {audio_state.id}
                             }}
                         , "media":
                             {{
