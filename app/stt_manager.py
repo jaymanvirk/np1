@@ -8,4 +8,9 @@ class AudioState:
         self.prev_transcription = ""
         # Lock for synchronizing access to shared state
         self.lock = asyncio.Lock()  
+        self._id = -1 
 
+    async def get_next_id(self):
+        async with self.lock:
+            self._id += 1
+            return self._id
