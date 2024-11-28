@@ -1,6 +1,6 @@
 import asyncio
 from llm_manager import ollama_manager
-
+import time
 
 async def send_input_to_ollama(model_name: str, str_input: str):
     """Send user input to the Ollama process."""
@@ -22,10 +22,27 @@ async def stream_ollama_output(websocket, str_input: str):
     try:
         process = await send_input_to_ollama(model_name, str_input)
         while True:
-            output = await get_response(process)
-            if output:
-                output = output.replace("\"", "\\\"")
-                await websocket.send_text(f'{{"sender":{{"name":"K"}}, "media":{{"text": {output}}}}}') 
+            response = await get_response(process)
+            if response:
+                response = response.replace("\"", "\\\"")
+                m_id = int(time.time())
+                json = f'
+                    {{
+                        "sender":
+                            {{
+                                "name":"K"
+                            }}
+                        , "meta":
+                            {{
+                                "id": {m_id}
+                            }}
+                        , "media":
+                            {{
+                                "text": {response}
+                            }}
+                    }}
+                ' 
+                await websocket.send_text(json) 
             else:
                 break
     except Exception as e:
