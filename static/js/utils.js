@@ -14,8 +14,8 @@ function get_html_message(data) {
     `;
 }
 
-function process_message(raw_data) {
-    const data = JSON.parse(raw_data);
+function process_message(json_data) {
+    const data = JSON.parse(json_data);
     const chat = document.getElementById('chat');
     const m_div = document.querySelector(`div.message[id='${data.meta.id}']`);
     
