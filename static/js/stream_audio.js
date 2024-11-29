@@ -1,7 +1,6 @@
 async function stream_audio(){
     const ws = new WebSocket("wss://kompjuut.com/stream/v1/audio");
     ws.binaryType = "arraybuffer";
-    const chat = document.getElementById('chat');
 
     const audio_context = new (window.AudioContext || window.webkitAudioContext)();
 
