@@ -1,50 +1,59 @@
 import asyncio
-import subprocess
 import json
-from asyncio import Queue
-from threading import Thread
+from typing import Optional, Dict, Any
+
 
 class PiperTTS:
-    def __init__(self):
-        self.process = None
-        self.input_queue = Queue()
-        self.output_queue = Queue()
-        self.start_piper_process()
+    def __init__(self, piper_path: str, model_path: str, gpu_device: int):
+        self.piper_path = piper_path
+        self.model_path = model_path
+        self.gpu_device = gpu_device
+        self.process: Optional[asyncio.subprocess.Process] = None
+        self.input_queue: asyncio.Queue[Optional[Dict[str, Any]]] = asyncio.Queue()
+        self.output_queue: asyncio.Queue[bytes] = asyncio.Queue()
 
-    def start_piper_process(self):
+    async def start(self):
         cmd = [
-            PIPER_PATH,
-            "--model", MODEL_PATH,
+            self.piper_path,
+            "--model", self.model_path,
             "--output-raw",
             "--cuda",
-            "--gpu-device", str(GPU_DEVICE),
+            "--gpu-device", str(self.gpu_device),
             "--json-input"
         ]
-        self.process = subprocess.Popen(
-            cmd,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL
+        self.process = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.DEVNULL
         )
-        Thread(target=self.process_input).start()
-        Thread(target=self.process_output).start()
+        asyncio.create_task(self.process_input())
+        asyncio.create_task(self.process_output())
 
-    def process_input(self):
-        while True:
-            input_data = self.input_queue.get()
-            if input_data is None:
-                break
-            self.process.stdin.write(json.dumps(input_data).encode() + b'\n')
-            self.process.stdin.flush()
+    async def process_input(self):
+        assert self.process and self.process.stdin
+        try:
+            while True:
+                input_data = await self.input_queue.get()
+                if input_data is None:
+                    break
+                self.process.stdin.write(json.dumps(input_data).encode() + b'\n')
+                await self.process.stdin.drain()
+        finally:
+            self.process.stdin.close()
 
-    def process_output(self):
-        while True:
-            audio_chunk = self.process.stdout.read(4096)
-            if not audio_chunk:
-                break
-            self.output_queue.put(audio_chunk)
+    async def process_output(self):
+        assert self.process and self.process.stdout
+        try:
+            while True:
+                audio_chunk = await self.process.stdout.read(4096)
+                if not audio_chunk:
+                    break
+                await self.output_queue.put(audio_chunk)
+        finally:
+            await self.output_queue.put(b'')  # Signal end of output
 
-    def generate_speech(self, text, speaker_id=0):
+    async def generate_speech(self, text: str, speaker_id: int = 0):
         input_data = {
             "text": text,
             "speaker_id": speaker_id,
@@ -52,15 +61,21 @@ class PiperTTS:
             "noise_scale": 0.667,
             "noise_w": 0.8
         }
-        self.input_queue.put(input_data)
+        await self.input_queue.put(input_data)
 
-    def get_audio_chunk(self):
-        return self.output_queue.get()
+    async def get_audio_chunk(self) -> bytes:
+        return await self.output_queue.get()
 
-    def close(self):
-        self.input_queue.put(None)
-        self.process.stdin.close()
-        self.process.stdout.close()
-        self.process.wait()
+    async def close(self):
+        await self.input_queue.put(None)
+        if self.process:
+            try:
+                await asyncio.wait_for(self.process.wait(), timeout=5.0)
+            except asyncio.TimeoutError:
+                self.process.kill()
+            finally:
+                self.process = None
+
 
 piper_tts = PiperTTS()
+
