@@ -3,3 +3,4 @@ uvicorn[standard]
 soundfile
 openai-whisper
 piper-tts
+onnxruntime-gpu
