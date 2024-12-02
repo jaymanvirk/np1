@@ -4,6 +4,7 @@ from stt_manager import AudioState
 from ollama_manager import ollama_manager
 import asyncio
 
+LLM_CHECKPOINT = os.getenv("LLM_CHECKPOINT")
 
 router = APIRouter()
 
@@ -26,6 +27,6 @@ async def handle_stream_audio(websocket: WebSocket):
 
     finally:
         stream_task.cancel()
-        ollama_manager.stop_process(model)
+        ollama_manager.stop_process(LLM_CHECKPOINT)
         await websocket.close()
 
