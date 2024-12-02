@@ -6,12 +6,12 @@ import whisper
 import os
 
 
-model_checkpoint = os.getenv("WHISPER_MODEL_CHECKPOINT")
-device = os.getenv("WHISPER_DEVICE")
-model = whisper.load_model(model_checkpoint).to(device) 
+STT_CHECKPOINT = os.getenv("STT_CHECKPOINT")
+GPU_DEVICE = os.getenv("GPU_DEVICE")
+MODEL = whisper.load_model(STT_CHECKPOINT).to(GPU_DEVICE) 
 
 async def get_transcription(audio_data) -> str:
-    result = model.transcribe(audio_data)
+    result = MODEL.transcribe(audio_data)
 
     return result["text"]
 
