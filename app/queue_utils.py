@@ -33,7 +33,7 @@ async def process_queue(websocket
                 audio_state.combined_audio = audio_state.audio_chunk_0
 
             transcription = transcription.replace("\"", "\\\"")
-            json = f'
+            json = f'''
                     {{
                         "sender":
                             {{
@@ -48,5 +48,5 @@ async def process_queue(websocket
                                 "text": "{transcription}"
                             }}
                     }}
-            '
+            '''
             await websocket.send_text(json)
