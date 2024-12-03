@@ -1,8 +1,10 @@
 from fastapi import WebSocket, APIRouter
 from queue_utils import process_queue
 from stt_manager import AudioState
-from ollama_manager import ollama_manager
+from llm_manager import ollama_manager
 import asyncio
+import os
+
 
 LLM_CHECKPOINT = os.getenv("LLM_CHECKPOINT")
 
