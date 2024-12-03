@@ -3,7 +3,7 @@ FROM python:3.12-slim
 
 # Install ffmpeg and clean up
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ffmpeg git && \
+    apt-get install -y --no-install-recommends ffmpeg git curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Set the working directory in the container
@@ -24,10 +24,8 @@ RUN python -c "import whisper; \
 COPY requirements.txt .
 
 # Install ollama
-# RUN curl -sSL https://ollama.com/install.sh | sh
+RUN curl -sSL https://ollama.com/install.sh | sh
 
-# Download Llama 3.2:3B model
-# RUN ollama run llama3.2:3b
 
 # Use a cache mount for pip installations
 RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
