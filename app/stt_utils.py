@@ -1,7 +1,7 @@
 import io
 import numpy as np
 import soundfile as sf
-import subprocess
+import asyncio 
 import whisper
 import os
 
@@ -22,15 +22,15 @@ async def get_processed_audio(audio_bytes, ms = 500):
     output_buffer = io.BytesIO()
 
     # Use ffmpeg to convert the input audio bytes to WAV
-    process = subprocess.Popen(
-        ['ffmpeg', '-i', 'pipe:0', '-f', 'wav', 'pipe:1'],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+    process = await asyncio.create_subprocess_exec(
+        'ffmpeg', '-i', 'pipe:0', '-f', 'wav', 'pipe:1',
+        stdin=asyncio.subprocess.PIPE,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
     )
 
     # Write the input bytes to ffmpeg's stdin and read from stdout
-    wav_data, _ = process.communicate(input=input_buffer.read())
+    wav_data, _ = await process.communicate(input=input_buffer.getvalue())
 
     # Read audio bytes directly into a numpy array using soundfile
     audio_segment, sr = sf.read(io.BytesIO(wav_data))
@@ -46,9 +46,9 @@ async def get_processed_audio(audio_bytes, ms = 500):
         # Calculate the resampling factor
         resample_factor = 16000 / sr
         new_length = int(len(trimmed_audio) * resample_factor)
-        trimmed_audio = np.interp(
-            np.linspace(0.0, 1.0, new_length), 
-            np.linspace(0.0, 1.0, len(trimmed_audio)), 
+        trimmed_audio = await asyncio.to_thread(np.interp,
+            np.linspace(0.0, 1.0, new_length),
+            np.linspace(0.0, 1.0, len(trimmed_audio)),
             trimmed_audio
         )
 
