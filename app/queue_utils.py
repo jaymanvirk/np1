@@ -36,7 +36,7 @@ async def process_queue(websocket
         
             message = {
                 "sender": {
-                    "name": "You"
+                    "name": "Me"
                 },
                 "meta": {
                     "id": audio_state.id
