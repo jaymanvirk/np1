@@ -33,21 +33,17 @@ async def process_queue(websocket
                    audio_state.prev_transcription = transcription
             else:
                 audio_state.combined_audio = audio_state.audio_chunk_0
+        
+            message = {
+                "sender": {
+                    "name": "You"
+                },
+                "meta": {
+                    "id": audio_state.id
+                },
+                "media": {
+                    "text": transcription
+                }
+            }
 
-            message = f'''
-                    {{
-                        "sender":
-                            {{
-                                "name":"You"
-                            }}
-                        , "meta":
-                            {{
-                                "id": {audio_state.id}
-                            }}
-                        , "media":
-                            {{
-                                "text": "{transcription}"
-                            }}
-                    }}
-            '''
             await websocket.send_text(json.dumps(message))
