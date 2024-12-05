@@ -1,6 +1,8 @@
 from stt_utils import get_transcription, get_processed_audio
 from llm_utils import is_thought_complete, stream_ollama_output
 import os
+import json
+
 
 LLM_CHECKPOINT = os.getenv("LLM_CHECKPOINT")
 
@@ -32,8 +34,7 @@ async def process_queue(websocket
             else:
                 audio_state.combined_audio = audio_state.audio_chunk_0
 
-            transcription = transcription.replace("\"", "\\\"")
-            json = f'''
+            message = f'''
                     {{
                         "sender":
                             {{
@@ -49,4 +50,4 @@ async def process_queue(websocket
                             }}
                     }}
             '''
-            await websocket.send_text(json)
+            await websocket.send_text(json.dumps(message))
