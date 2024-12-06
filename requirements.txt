@@ -2,3 +2,5 @@ fastapi
 uvicorn[standard]
 soundfile
 openai-whisper
+torchaudio
+onnxruntime
