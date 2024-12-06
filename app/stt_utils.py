@@ -4,16 +4,36 @@ import soundfile as sf
 import asyncio 
 import whisper
 import os
+import torch
+
+
+VAD_MODEL, VAD_UTILS = torch.hub.load(repo_or_dir='snakers4/silero-vad', model='silero_vad', onnx=True)
+VAD_MODEL = VAD_MODEL.cuda()
+MAX_AUDIO_LENGTH = 16000
+AUDIO_TENSOR = torch.zeros(1, MAX_AUDIO_LENGTH, device='cuda', dtype=torch.float32)
 
 
 STT_CHECKPOINT = os.getenv("STT_CHECKPOINT")
 GPU_DEVICE = os.getenv("GPU_DEVICE")
-MODEL = whisper.load_model(STT_CHECKPOINT).to(GPU_DEVICE) 
+STT_MODEL = whisper.load_model(STT_CHECKPOINT).to(GPU_DEVICE) 
+
 
 async def get_transcription(audio_data) -> str:
-    result = MODEL.transcribe(audio_data)
+    result = STT_MODEL.transcribe(audio_data)
 
     return result["text"]
+
+
+async def is_speech(processed_audio, threshold=0.5, sampling_rate=16000):
+    # Ensure audio is in the correct format and copy to pre-allocated tensor
+    audio_length = min(len(processed_audio), MAX_AUDIO_LENGTH) 
+    with torch.cuda.stream(torch.cuda.Stream()):
+        audio_tensor[0, :audio_length].copy_(torch.from_numpy(processed_audio[:audio_length]), non_blocking=True)
+    
+    # Run VAD asynchronously
+    speech_prob = await asyncio.to_thread(lambda: model(audio_tensor[:, :audio_length], sampling_rate).item())
+    
+    return speech_prob > threshold
 
 
 async def get_processed_audio(audio_bytes, ms = 500):
