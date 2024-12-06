@@ -1,4 +1,4 @@
-from stt_utils import get_transcription, get_processed_audio
+from stt_utils import get_transcription, get_processed_audio, is_speech
 from llm_utils import is_thought_complete, stream_ollama_output
 import os
 import json
@@ -12,38 +12,43 @@ async def process_queue(websocket
                         , audio_state):
     while True:
         audio_chunk = await queue.get()
-        # Ensure exclusive access to shared state
-        async with audio_state.lock:  
-            audio_state.combined_audio += audio_chunk
+       
+        tmp_chunk = await get_processed_audio(audio_chunk)
+        speech = await is_speech(tmp_chunk)
 
-        audio_data = await get_processed_audio(audio_state.combined_audio)
-
-        transcription = await get_transcription(audio_data)
-        # Lock again for state updates
-        async with audio_state.lock:
-            if transcription:
-
-                if audio_state.prev_transcription == transcription:
-                    audio_state.combined_audio = audio_state.audio_chunk_0 + audio_chunk
-                    thought_complete = await is_thought_complete(LLM_CHECKPOINT, transcription)
-                    if bool(thought_complete):
-                        audio_state.id += 1 
-                        await stream_ollama_output(websocket, LLM_CHECKPOINT, transcription)
-                else:
-                   audio_state.prev_transcription = transcription
-            else:
-                audio_state.combined_audio = audio_state.audio_chunk_0
+        if speech:
+            # Ensure exclusive access to shared state
+            async with audio_state.lock:  
+                audio_state.combined_audio += audio_chunk
         
-            message = {
-                "sender": {
-                    "name": "Me"
-                },
-                "meta": {
-                    "id": audio_state.id
-                },
-                "media": {
-                    "text": transcription
-                }
-            }
+            audio_data = await get_processed_audio(audio_state.combined_audio)
 
-            await websocket.send_text(json.dumps(message))
+            transcription = await get_transcription(audio_data)
+            # Lock again for state updates
+            async with audio_state.lock:
+                if transcription:
+
+                    if audio_state.prev_transcription == transcription:
+                        audio_state.combined_audio = audio_state.audio_chunk_0 + audio_chunk
+                        thought_complete = await is_thought_complete(LLM_CHECKPOINT, transcription)
+                        if bool(thought_complete):
+                            audio_state.id += 1 
+                            await stream_ollama_output(websocket, LLM_CHECKPOINT, transcription)
+                    else:
+                       audio_state.prev_transcription = transcription
+                else:
+                    audio_state.combined_audio = audio_state.audio_chunk_0
+            
+                message = {
+                    "sender": {
+                        "name": "Me"
+                    },
+                    "meta": {
+                        "id": audio_state.id
+                    },
+                    "media": {
+                        "text": transcription
+                    }
+                }
+
+                await websocket.send_text(json.dumps(message))
