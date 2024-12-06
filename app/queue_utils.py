@@ -21,11 +21,9 @@ async def process_queue(websocket
             async with audio_state.lock:  
                 audio_state.combined_audio += audio_chunk
         
-            audio_data = await get_processed_audio(audio_state.combined_audio)
+                audio_data = await get_processed_audio(audio_state.combined_audio)
 
-            transcription = await get_transcription(audio_data)
-            # Lock again for state updates
-            async with audio_state.lock:
+                transcription = await get_transcription(audio_data)
                 if transcription:
 
                     if audio_state.prev_transcription == transcription:
