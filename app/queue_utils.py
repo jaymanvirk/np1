@@ -13,7 +13,7 @@ async def process_queue(websocket
     while True:
         audio_chunk = await queue.get()
        
-        tmp_chunk = await get_processed_audio(audio_chunk)
+        tmp_chunk = await get_processed_audio(audio_chunk, ms = 0)
         speech = await is_speech(tmp_chunk)
 
         if speech:
@@ -24,19 +24,8 @@ async def process_queue(websocket
                 audio_data = await get_processed_audio(audio_state.combined_audio)
 
                 transcription = await get_transcription(audio_data)
-                if transcription:
-
-                    if audio_state.prev_transcription == transcription:
-                        audio_state.combined_audio = audio_state.audio_chunk_0 + audio_chunk
-                        thought_complete = await is_thought_complete(LLM_CHECKPOINT, transcription)
-                        if bool(thought_complete):
-                            audio_state.id += 1 
-                            await stream_ollama_output(websocket, LLM_CHECKPOINT, transcription)
-                    else:
-                       audio_state.prev_transcription = transcription
-                else:
-                    audio_state.combined_audio = audio_state.audio_chunk_0
-            
+                audio_state.prev_transcription = transcription
+ 
                 message = {
                     "sender": {
                         "name": "Me"
@@ -50,3 +39,11 @@ async def process_queue(websocket
                 }
 
                 await websocket.send_text(json.dumps(message))
+        else:
+            thought_complete = await is_thought_complete(LLM_CHECKPOINT, audio_state.prev_transcription)
+            if bool(thought_complete):
+                async with audio_state.lock:
+                    audio_state.id += 1 
+                    audio_state.combined_audio = audio_state.audio_chunk_0
+                await stream_ollama_output(websocket, LLM_CHECKPOINT, audio_state.prev_transcription)
+       
