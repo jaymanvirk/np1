@@ -3,8 +3,9 @@
 ## Stack
 - Whisper STT
 - LLaMA 3.2
+- Silero VAD
 - Piper TTS
-- Fast API
+- FastAPI
 - Milvus
 - Memcached
 - Cassandra
