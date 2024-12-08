@@ -72,3 +72,4 @@ async def get_processed_audio(audio_bytes, ms = 500):
         )
 
     return trimmed_audio.astype(np.float32)
+
