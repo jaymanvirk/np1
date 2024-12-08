@@ -13,7 +13,7 @@ async def process_queue(websocket
     while True:
         audio_chunk = await queue.get()
        
-        tmp_chunk = await get_processed_audio(audio_chunk, ms = 0)
+        tmp_chunk = await get_processed_audio(audio_state.audio_chunk_0 + audio_chunk)
         speech = await is_speech(tmp_chunk)
 
         if speech:
@@ -39,7 +39,7 @@ async def process_queue(websocket
                 }
 
                 await websocket.send_text(json.dumps(message))
-        else:
+        elif audio_state.combined_audio != audio_state.audio_chunk_0:
             thought_complete = await is_thought_complete(LLM_CHECKPOINT, audio_state.prev_transcription)
             if bool(thought_complete):
                 async with audio_state.lock:
