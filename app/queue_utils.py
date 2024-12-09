@@ -1,5 +1,6 @@
-from stt_utils import get_transcription, get_processed_audio, is_speech
+from stt_utils import get_transcription, get_processed_audio
 from llm_utils import is_thought_complete, stream_ollama_output
+from vad_utils import is_speech
 import os
 import json
 
