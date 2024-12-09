@@ -23,9 +23,10 @@ async def handle_stream_audio(websocket: WebSocket):
         while True:
             audio_chunk = await websocket.receive_bytes()
             await queue.put(audio_chunk)
-
+    except websockets.exceptions.ConnectionClosed:
+        print("WebSocket connection closed")
     except Exception as e:
-        await websocket.send_text(f"Error: {e}")
+        print(f"Error handle_stream_audio: {e}")
 
     finally:
         stream_task.cancel()
