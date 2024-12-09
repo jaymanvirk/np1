@@ -4,7 +4,6 @@ import torch
 
 VAD_MODEL, VAD_UTILS = torch.hub.load(repo_or_dir='snakers4/silero-vad', model='silero_vad', onnx=True)
 # Optimize for CPU inference
-VAD_MODEL.eval()
 torch.set_num_threads(1)
 torch.set_num_interop_threads(1)
 
