@@ -34,8 +34,7 @@ async def get_processed_audio(audio_bytes, ms = 500):
     wav_data, _ = await process.communicate(input=input_buffer.getvalue())
 
     # Read audio bytes directly into a numpy array using soundfile
-    audio_segment, sr = sf.read(io.BytesIO(wav_data))
-
+    audio_segment, sr = await asyncio.to_thread(sf.read, io.BytesIO(wav_data))
     # Calculate the number of samples to trim (ms to seconds)
     trim_samples = int(ms * sr / 1000)
 
