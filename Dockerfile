@@ -24,8 +24,12 @@ RUN python -c "import whisper; \
 COPY requirements.txt .
 
 # Install ollama
-# RUN curl -sSL https://ollama.com/install.sh | sh
+RUN curl -sSL https://ollama.com/install.sh | sh
 
+RUN ollama serve & \
+    sleep 5 && \
+    ollama pull llama3.2 && \
+    pkill ollama
 
 # Use a cache mount for pip installations
 RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
