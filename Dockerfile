@@ -18,13 +18,13 @@ RUN mkdir -p /app/model_checkpoints
 
 # Download the Whisper Turbo model
 RUN python -c "import whisper; \
-    model = whisper.load_model('tiny', download_root='/app/model_checkpoints');"
+    model = whisper.load_model('tiny', download_root='/app/model_checkpoints/whisper');"
 
 # Copy requirements.txt first to leverage caching
 COPY requirements.txt .
 
 # Install ollama
-RUN curl -sSL https://ollama.com/install.sh | sh
+# RUN curl -sSL https://ollama.com/install.sh | sh
 
 
 # Use a cache mount for pip installations
