@@ -10,28 +10,25 @@ async def send_input_to_ollama(model_name: str, str_input: str):
 
 async def stream_ollama_output(websocket, model_name: str, str_input: str):
     """Function to stream output from the Ollama subprocess."""
-    try:
-        await send_input_to_ollama(model_name, str_input)
-        while True:
-            response = await ollama_manager.get_output(model_name)
-            if response:
-                m_id = int(time.time())
-                message = {
-                    "sender": {
-                        "name": "K"
-                    },
-                    "meta": {
-                        "id": m_id
-                    },
-                    "media": {
-                        "text": response
-                    }
+    await send_input_to_ollama(model_name, str_input)
+    m_id = int(time.time())
+    while True:
+        response = await ollama_manager.get_output(model_name)
+        if response:
+            message = {
+                "sender": {
+                    "name": "K"
+                },
+                "meta": {
+                    "id": m_id
+                },
+                "media": {
+                    "text": response
                 }
-                await websocket.send_text(json.dumps(message))
-            else:
-                break
-    except Exception as e:
-        await websocket.send_text(f"Error while reading output: {e}")
+            }
+            await websocket.send_text(json.dumps(message))
+        else:
+            break
 
 async def is_thought_complete(model_name: str, str_input: str):
     """Function to check if the input thought is complete"""
