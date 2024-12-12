@@ -39,5 +39,4 @@ COPY ./app /app
 COPY ./static /app/static
 
 # Command to run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "-1", "--ws-ping-interval", "100", "--ws-ping-timeout", "100"]
-
+CMD ["/startup.sh"]
