@@ -1,6 +1,6 @@
 from audio_utils import get_processed_audio
 from stt_utils import get_transcription
-from llm_utils import is_thought_complete, stream_ollama_output
+from llm_utils import stream_ollama_output
 from vad_utils import is_speech
 import os
 import json
@@ -42,10 +42,8 @@ async def process_queue(websocket
 
                 await websocket.send_text(json.dumps(message))
         elif audio_state.combined_audio != audio_state.audio_chunk_0:
-            thought_complete = await is_thought_complete(LLM_CHECKPOINT, audio_state.prev_transcription)
-            if bool(thought_complete):
-                async with audio_state.lock:
-                    audio_state.id += 1 
-                    audio_state.combined_audio = audio_state.audio_chunk_0
-                await stream_ollama_output(websocket, LLM_CHECKPOINT, audio_state.prev_transcription)
-       
+            async with audio_state.lock:
+                audio_state.id += 1 
+                audio_state.combined_audio = audio_state.audio_chunk_0
+            await stream_ollama_output(websocket, LLM_CHECKPOINT, audio_state.prev_transcription)
+   
