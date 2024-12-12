@@ -26,7 +26,7 @@ async def process_queue(websocket
                 audio_data = await get_processed_audio(audio_state.combined_audio)
 
                 transcription = await get_transcription(audio_data)
-                audio_state.prev_transcription = transcription
+                audio_state.transcription = transcription
  
                 message = {
                     "sender": {
@@ -41,6 +41,6 @@ async def process_queue(websocket
                 }
 
             await websocket.send_text(json.dumps(message))
-        elif audio_state.combined_audio != audio_state.audio_chunk_0:
+        elif len(audio_state.transcription):
             await stream_ollama_output(websocket, LLM_CHECKPOINT, audio_state.prev_transcription)
    
