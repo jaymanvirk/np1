@@ -60,8 +60,11 @@ class OllamaManager:
 
     async def get_output(self, model_name: str) -> str:
         if model_name in self.output_queues:
-            return await self.output_queues[model_name].get()
-        return ''
+        while True:
+            output = await self.output_queues[model_name].get()
+            if output == '':  # End of output signal
+                break
+            yield output
 
     async def stop_process(self, model_name: str):
         if model_name in self.processes:
@@ -75,9 +78,6 @@ class OllamaManager:
                 del self.processes[model_name]
                 del self.input_queues[model_name]
                 del self.output_queues[model_name]
-
-    def get_process(self, model_name: str) -> Optional[asyncio.subprocess.Process]:
-        return self.processes.get(model_name)
 
 ollama_manager = OllamaManager()
 
