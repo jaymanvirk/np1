@@ -40,10 +40,7 @@ async def process_queue(websocket
                     }
                 }
 
-                await websocket.send_text(json.dumps(message))
+            await websocket.send_text(json.dumps(message))
         elif audio_state.combined_audio != audio_state.audio_chunk_0:
-            async with audio_state.lock:
-                audio_state.id += 1 
-                audio_state.combined_audio = audio_state.audio_chunk_0
             await stream_ollama_output(websocket, LLM_CHECKPOINT, audio_state.prev_transcription)
    
