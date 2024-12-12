@@ -30,15 +30,3 @@ async def stream_ollama_output(websocket, model_name: str, str_input: str):
         else:
             break
 
-async def is_thought_complete(model_name: str, str_input: str):
-    """Function to check if the input thought is complete"""
-    instruction = '''
-                Answer "True" or "False" to the following question:
-                Is the thought of the following sentence complete?
-                Sentence: 
-            '''
-    prompt = instruction + str_input
-
-    await send_input_to_ollama(model_name, prompt)
-    return await ollama_manager.get_output(model_name)
-
