@@ -28,8 +28,7 @@ RUN curl -sSL https://ollama.com/install.sh | sh
 
 RUN ollama serve & \
     sleep 5 && \
-    ollama pull llama3.2 && \
-    pkill ollama
+    ollama pull llama3.2
 
 # Use a cache mount for pip installations
 RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
@@ -39,4 +38,6 @@ COPY ./app /app
 COPY ./static /app/static
 
 # Command to run the application
-CMD ["/startup.sh"]
+COPY startup.sh .
+RUN chmod +x ./startup.sh
+CMD ["./startup.sh"]
