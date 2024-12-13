@@ -16,7 +16,6 @@ class OllamaManager:
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
-                text=True
             )
             self.processes[model_name] = process
             self.input_queues[model_name] = asyncio.Queue()
@@ -36,7 +35,7 @@ class OllamaManager:
                 input_data = await input_queue.get()
                 if input_data is None:
                     break
-                process.stdin.write(input_data + '\n')
+                process.stdin.write((input_data + '\n').encode())
                 await process.stdin.drain()
         finally:
             process.stdin.close()
