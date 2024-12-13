@@ -8,4 +8,5 @@ class STTManager:
         self.transcription = ""
         # Lock for synchronizing access to shared state
         self.lock = asyncio.Lock()  
+        self.sent_to_llm = False
         self.id = 0
