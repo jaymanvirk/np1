@@ -1,7 +1,7 @@
 import asyncio
 
 
-class AudioState:
+class STTManager:
     def __init__(self):
         self.audio_chunk_0 = b''
         self.combined_audio = b''

@@ -11,29 +11,29 @@ LLM_CHECKPOINT = os.getenv("LLM_CHECKPOINT")
 
 async def process_queue(websocket
                         , queue
-                        , audio_state):
+                        , stt_manager):
     while True:
         audio_chunk = await queue.get()
        
-        tmp_chunk = await get_processed_audio(audio_state.audio_chunk_0 + audio_chunk)
+        tmp_chunk = await get_processed_audio(stt_manager.audio_chunk_0 + audio_chunk)
         speech = await is_speech(tmp_chunk)
 
         if speech:
             # Ensure exclusive access to shared state
-            async with audio_state.lock:  
-                audio_state.combined_audio += audio_chunk
+            async with stt_manager.lock:  
+                stt_manager.combined_audio += audio_chunk
         
-                audio_data = await get_processed_audio(audio_state.combined_audio)
+                audio_data = await get_processed_audio(stt_manager.combined_audio)
 
                 transcription = await get_transcription(audio_data)
-                audio_state.transcription = transcription
+                stt_manager.transcription = transcription
  
                 message = {
                     "sender": {
                         "name": "Me"
                     },
                     "meta": {
-                        "id": audio_state.id
+                        "id": stt_manager.id
                     },
                     "media": {
                         "text": transcription
@@ -41,6 +41,6 @@ async def process_queue(websocket
                 }
 
             await websocket.send_text(json.dumps(message))
-        elif len(audio_state.transcription):
-            await stream_ollama_output(websocket, LLM_CHECKPOINT, audio_state.prev_transcription)
+        elif len(stt_manager.transcription):
+            await stream_ollama_output(websocket, LLM_CHECKPOINT, stt_manager.transcription)
    

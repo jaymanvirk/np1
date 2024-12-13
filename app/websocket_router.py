@@ -1,6 +1,6 @@
 from fastapi import WebSocket, APIRouter
 from queue_utils import process_queue
-from stt_manager import AudioState
+from stt_manager import STTManager 
 from llm_manager import ollama_manager
 import asyncio
 import os
@@ -14,16 +14,16 @@ router = APIRouter()
 async def handle_stream_audio(websocket: WebSocket):
     await websocket.accept()
     queue = asyncio.Queue()
-    audio_state = AudioState()
+    stt_manager = STTManager()
 
     # Start ollama as a background task to prevent blocking
     asyncio.create_task(ollama_manager.start_process(LLM_CHECKPOINT))
 
-    stream_task = asyncio.create_task(process_queue(websocket, queue, audio_state))
+    stream_task = asyncio.create_task(process_queue(websocket, queue, stt_manager))
 
     try:
-        audio_state.audio_chunk_0 = await websocket.receive_bytes()
-        audio_state.combined_audio = audio_state.audio_chunk_0
+        stt_manager.audio_chunk_0 = await websocket.receive_bytes()
+        stt_manager.combined_audio = stt_manager.audio_chunk_0
         while True:
             audio_chunk = await websocket.receive_bytes()
             await queue.put(audio_chunk)
