@@ -4,7 +4,7 @@ import torch
 
 STT_CHECKPOINT = os.getenv("STT_CHECKPOINT")
 GPU_DEVICE = os.getenv("GPU_DEVICE")
-STT_MODEL = whisper.load_model(STT_CHECKPOINT).to(GPU_DEVICE).half()
+STT_MODEL = whisper.load_model(STT_CHECKPOINT).to(GPU_DEVICE)
 
 async def get_transcription(audio_data) -> str:
     with torch.no_grad():
