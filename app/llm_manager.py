@@ -60,11 +60,11 @@ class OllamaManager:
 
     async def get_output(self, model_name: str) -> str:
         if model_name in self.output_queues:
-        while True:
-            output = await self.output_queues[model_name].get()
-            if output == '':  # End of output signal
-                break
-            yield output
+            while True:
+                output = await self.output_queues[model_name].get()
+                if output == '':  # End of output signal
+                    break
+                yield output
 
     async def stop_process(self, model_name: str):
         if model_name in self.processes:
