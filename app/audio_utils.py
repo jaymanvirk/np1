@@ -4,10 +4,10 @@ import soundfile as sf
 import asyncio 
 
 
-async def get_processed_audio(audio_bytes, ms = 500):
+async def get_processed_audio(audio_chunk_0, audio_bytes):
+    combined_audio = audio_chunk_0 + audio_bytes
     # Convert audio bytes to WAV format using ffmpeg
-    input_buffer = io.BytesIO(audio_bytes)
-    output_buffer = io.BytesIO()
+    input_buffer = io.BytesIO(combined_audio)
 
     # Use ffmpeg to convert the input audio bytes to WAV
     process = await asyncio.create_subprocess_exec(
@@ -22,11 +22,12 @@ async def get_processed_audio(audio_bytes, ms = 500):
 
     # Read audio bytes directly into a numpy array using soundfile
     audio_segment, sr = await asyncio.to_thread(sf.read, io.BytesIO(wav_data))
-    # Calculate the number of samples to trim (ms to seconds)
-    trim_samples = int(ms * sr / 1000)
 
-    # Trim the audio segment directly using NumPy slicing
-    trimmed_audio = audio_segment[trim_samples:]
+    # Calculate the number of samples to remove (length of audio_chunk_0)
+    chunk_0_samples = int(len(audio_chunk_0) * sr / len(combined_audio))
+
+    # Remove audio_chunk_0 from audio_segment
+    trimmed_audio = audio_segment[chunk_0_samples:]
 
     # Resample to 16 kHz if necessary
     if sr != 16000:
