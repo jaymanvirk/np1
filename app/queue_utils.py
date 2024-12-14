@@ -15,16 +15,16 @@ async def process_queue(websocket
     while True:
         audio_chunk = await queue.get()
        
-        tmp_chunk = await get_processed_audio(stt_manager.audio_chunk_0 + audio_chunk)
+        tmp_chunk = await get_processed_audio(stt_manager.audio_chunk_0, audio_chunk)
         speech = await is_speech(tmp_chunk)
 
         if speech:
             # Ensure exclusive access to shared state
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = False
-                stt_manager.combined_audio += audio_chunk
+                stt_manager.audio_bytes += audio_chunk
         
-                audio_data = await get_processed_audio(stt_manager.combined_audio)
+                audio_data = await get_processed_audio(stt_manager.audio_chunk_0, stt_manager.audio_bytes)
 
                 transcription = await get_transcription(audio_data)
                 stt_manager.transcription = transcription
