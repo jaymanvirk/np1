@@ -23,13 +23,9 @@ async def handle_stream_audio(websocket: WebSocket):
 
     try:
         stt_manager.audio_chunk_0 = await websocket.receive_bytes()
-        stt_manager.combined_audio = stt_manager.audio_chunk_0
         while True:
             audio_chunk = await websocket.receive_bytes()
             await queue.put(audio_chunk)
-    except Exception as e:
-        print(f"Error handle_stream_audio: {e}")
-
     finally:
         stream_task.cancel()
         ollama_manager.stop_process(LLM_CHECKPOINT)
