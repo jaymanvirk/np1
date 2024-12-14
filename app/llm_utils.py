@@ -31,4 +31,4 @@ async def stream_llm_output(websocket, model_name: str, stt_manager):
     if flag:
         async with stt_manager.lock:
             stt_manager.id += 1
-            stt_manager.combined_audio = stt_manager.audio_chunk_0
+            stt_manager.audio_bytes = b''
