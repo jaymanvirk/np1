@@ -28,6 +28,6 @@ async def handle_stream_audio(websocket: WebSocket):
             await queue.put(audio_chunk)
     finally:
         stream_task.cancel()
-        ollama_manager.stop_process(LLM_CHECKPOINT)
+        await ollama_manager.stop_process(LLM_CHECKPOINT)
         await websocket.close()
 
