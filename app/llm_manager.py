@@ -31,12 +31,11 @@ class OllamaManager:
         process = self.processes[model_name]
         input_queue = self.input_queues[model_name]
         assert process.stdin
-        try:
-            while True:
-                input_data = await input_queue.get()
-                if input_data:
-                    process.stdin.write((input_data + '\n').encode())
-                    await process.stdin.drain()
+        while True:
+            input_data = await input_queue.get()
+            if input_data:
+                process.stdin.write((input_data + '\n').encode())
+                await process.stdin.drain()
 
     async def process_output(self, model_name: str):
         process = self.processes[model_name]
