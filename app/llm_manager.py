@@ -1,5 +1,4 @@
 import asyncio
-import json
 from typing import Optional, Dict, Any, AsyncGenerator
 
 class OllamaManager:
@@ -53,7 +52,7 @@ class OllamaManager:
                 if decoded_line:
                     await output_queue.put(decoded_line)
         except Exception as e:
-            await output_queue.put({"process_output":str(e)})
+            await output_queue.put(f"process_output: {str(e)}")
 
     async def send_input(self, model_name: str, input_text: str):
         if model_name in self.input_queues:
@@ -66,7 +65,7 @@ class OllamaManager:
                     output = await self.output_queues[model_name].get()
                     yield output
             except Exception as e:
-                yield {"get_output": str(e)}
+                yield f"get_output: {str(e)}"
 
     async def stop_process(self, model_name: str):
         if model_name in self.processes:
