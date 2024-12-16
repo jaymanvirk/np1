@@ -15,9 +15,8 @@ async def handle_stream_audio(websocket: WebSocket):
     await websocket.accept()
     queue = asyncio.Queue()
     stt_manager = STTManager()
-
-    # Start ollama as a background task to prevent blocking
-    asyncio.create_task(ollama_manager.start_process(LLM_CHECKPOINT))
+    
+    await ollama_manager.start_session()
 
     stream_task = asyncio.create_task(process_queue(websocket, queue, stt_manager))
 
