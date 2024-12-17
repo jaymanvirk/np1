@@ -3,10 +3,6 @@ from queue_utils import process_queue
 from stt_manager import STTManager 
 from llm_manager import ollama_manager
 import asyncio
-import os
-
-
-LLM_CHECKPOINT = os.getenv("LLM_CHECKPOINT")
 
 router = APIRouter()
 
@@ -27,6 +23,6 @@ async def handle_stream_audio(websocket: WebSocket):
             await queue.put(audio_chunk)
     finally:
         stream_task.cancel()
-        await ollama_manager.stop_process(LLM_CHECKPOINT)
+        await ollama_manager.close_session()
         await websocket.close()
 
