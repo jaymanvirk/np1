@@ -8,8 +8,10 @@ async def stream_llm_output(websocket, model_name: str, stt_manager):
     """Function to stream output from the Ollama subprocess."""
     m_id = int(time.time())
     flag = False
+    text = ""
     async for output in ollama_manager.chat(stt_manager.transcription):
         flag = True
+        text += output
         message = {
             "sender": {
                 "name": "K"
@@ -18,7 +20,7 @@ async def stream_llm_output(websocket, model_name: str, stt_manager):
                 "id": m_id
             },
             "media": {
-                "text": output 
+                "text": text 
             }
         }
         await websocket.send_text(json.dumps(message))
