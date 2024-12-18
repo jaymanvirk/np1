@@ -31,15 +31,13 @@ class OllamaManager:
         """Send a message to the model and return an async generator of responses."""
         self.add_message("user", content)
         
-        assistant_message = ""
         async with self.session.post(self.url, json={"model": self.model_name, "messages": self.messages}) as response:
             if response.status == 200:
                 async for line in response.content:
                     output_line = line.decode().strip()
                     if output_line:
                         output = json.loads(output_line)
-                        assistant_message += str(output["message"]["content"])
-                        yield assistant_message
+                        yield str(output["message"]["content"])
 
         self.add_message("assistant", assistant_message)
 
