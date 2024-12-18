@@ -1,10 +1,15 @@
 # Use the official Python image from the Docker Hub
 FROM python:3.12-slim
 
-# Install ffmpeg and clean up
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends ffmpeg git curl && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    git \
+    curl \
+    build-essential \
+    espeak-ng \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory in the container
 WORKDIR /app
@@ -23,6 +28,11 @@ RUN python -c "import whisper; \
 
 RUN python -c "import torch; \
     model = torch.hub.load(repo_or_dir='snakers4/silero-vad', model='silero_vad', onnx=True);"
+
+# Download and install piper-tts
+COPY diptts.sh .
+RUN chmod +x ./diptts.sh \
+    && ./diptts.sh
 
 # Install ollama
 RUN curl -sSL https://ollama.com/install.sh | sh
