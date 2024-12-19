@@ -1,5 +1,6 @@
 import asyncio
 from llm_manager import ollama_manager
+from tts_manager import tts_manager
 import time
 import json
 
@@ -24,6 +25,9 @@ async def stream_llm_output(websocket, model_name: str, stt_manager):
             }
         }
         await websocket.send_text(json.dumps(message))
+
+    audio_bytes = await tts_manager.get_output(text)
+    await websocket.send_bytes(audio_bytes)
     
     if flag:
         async with stt_manager.lock:
