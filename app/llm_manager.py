@@ -30,14 +30,16 @@ class OllamaManager:
     async def chat(self, content: str) -> AsyncGenerator[str, None]:
         """Send a message to the model and return an async generator of responses."""
         self.add_message("user", content)
-        
+        assistant_message = ""
         async with self.session.post(self.url, json={"model": self.model_name, "messages": self.messages}) as response:
             if response.status == 200:
                 async for line in response.content:
                     output_line = line.decode().strip()
                     if output_line:
                         output = json.loads(output_line)
-                        yield str(output["message"]["content"])
+                        output = str(output["message"]["content"])
+                        assistant_message += output
+                        yield output
 
         self.add_message("assistant", assistant_message)
 
