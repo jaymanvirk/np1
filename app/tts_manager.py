@@ -9,7 +9,7 @@ class TTSManager:
         self.model_checkpoint = model_checkpoint
 
     async def get_output(self, text):
-        cmd = ["piper-cli", "--model", self.model_checkpoint, "--output_raw", "--cuda"]
+        cmd = ["piper-cli", "--model", self.model_checkpoint, "--output_file", "-", "--cuda"]
 
         process = await asyncio.create_subprocess_exec(
                 *cmd,
