@@ -5,3 +5,4 @@ openai-whisper
 torchaudio
 onnxruntime
 aiohttp
+onnxruntime-gpu
