@@ -3,7 +3,23 @@ async function stream_audio(){
     ws.binaryType = "arraybuffer";
 
     const audio_context = new (window.AudioContext || window.webkitAudioContext)();
+    let audio_queue = [];
+    let is_playing = false;
+    function play_next_queue() {
+        if (audio_queue.length === 0) {
+            is_playing = false;
+            return;
+        }
 
+        is_playing = true;
+        const buffer = audio_queue.shift();
+        const source = audio_context.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audio_context.destination);
+
+        source.onended = play_next_queue;
+        source.start(0);
+    }
     ws.onopen = async () => {
         console.log("WebSocket connection established");
     };
@@ -16,10 +32,11 @@ async function stream_audio(){
                 scroll_to_bottom();
             } else {
                 const buffer = await audio_context.decodeAudioData(data);
-                const source = audio_context.createBufferSource();
-                source.buffer = buffer;
-                source.connect(audio_context.destination);
-                source.start(0);
+                audio_queue.push(buffer);
+                if (!is_playing) {
+                    play_next_queue();
+                }
+ 
             }
         } catch (error) {
             console.error("Error decoding audio data", error);
