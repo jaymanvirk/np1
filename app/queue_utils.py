@@ -4,6 +4,7 @@ from llm_utils import stream_llm_output
 from vad_utils import is_speech
 import os
 import json
+import asyncio
 
 
 LLM_CHECKPOINT = os.getenv("LLM_CHECKPOINT")
@@ -19,6 +20,9 @@ async def process_queue(websocket
         speech = await is_speech(tmp_chunk)
 
         if speech:
+            if strm and stt_manager.sent_to_llm:
+                strm.cancel()
+
             # Ensure exclusive access to shared state
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = False
@@ -45,5 +49,5 @@ async def process_queue(websocket
         elif not stt_manager.sent_to_llm:
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = True
-            await stream_llm_output(websocket, LLM_CHECKPOINT, stt_manager)
+            strm = asyncio.create_task(stream_llm_output(websocket, LLM_CHECKPOINT, stt_manager))
    
