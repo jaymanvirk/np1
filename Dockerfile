@@ -29,10 +29,10 @@ RUN python -c "import whisper; \
 RUN python -c "import torch; \
     model = torch.hub.load(repo_or_dir='snakers4/silero-vad', model='silero_vad', onnx=True);"
 
-# Download and install piper-tts
-COPY diptts.sh .
-RUN chmod +x ./diptts.sh \
-    && ./diptts.sh
+# Install piper-tts
+COPY install_pipertts.sh .
+RUN chmod +x ./install_pipertts.sh \
+    && ./install_pipertts.sh
 
 # Install ollama
 RUN curl -sSL https://ollama.com/install.sh | sh
