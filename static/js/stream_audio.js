@@ -15,6 +15,7 @@ async function stream_audio(){
         const buffer = audio_queue.shift();
         const source = audio_context.createBufferSource();
         source.buffer = buffer;
+        source.playbackRate.value = 1.5;
         source.connect(audio_context.destination);
 
         source.onended = play_next_queue;
