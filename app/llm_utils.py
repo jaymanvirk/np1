@@ -38,7 +38,7 @@ async def stream_llm_output(websocket, model_name: str, stt_manager):
         else:
             incomplete_sentence += output + " "
 
-        await websocket.send_text(json.dumps(message))
+        asyncio.create_task(websocket.send_text(json.dumps(message)))
 
     if incomplete_sentence:
         await stream_audio(websocket, incomplete_sentence)
