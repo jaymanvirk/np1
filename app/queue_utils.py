@@ -13,6 +13,7 @@ LLM_CHECKPOINT = os.getenv("LLM_CHECKPOINT")
 async def process_queue(websocket
                         , queue
                         , stt_manager):
+    strm = None
     while True:
         audio_chunk = await queue.get()
        
@@ -20,7 +21,7 @@ async def process_queue(websocket
         speech = await is_speech(tmp_chunk)
 
         if speech:
-            if strm and stt_manager.sent_to_llm:
+            if strm is not None and not strm.done() and stt_manager.sent_to_llm:
                 strm.cancel()
 
             # Ensure exclusive access to shared state
