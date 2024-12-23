@@ -33,7 +33,7 @@ def get_main_html(data):
         </div>
     '''
     header = f'''
-         <div id="header">
+         <div id="header" class="bg-color-black">
            {nav}
          </div>
     '''
