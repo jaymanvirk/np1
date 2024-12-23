@@ -1,5 +1,9 @@
 function scroll_to_bottom() {
-    window.scrollTo(0, document.body.scrollHeight);
+    const scroll_position = window.scrollY + window.innerHeight;
+    const document_height = document.body.scrollHeight;
+    if (scroll_position >= document_height - 50) {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
 }
 
 function get_html_message(data) {
