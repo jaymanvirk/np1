@@ -23,8 +23,8 @@ class OllamaManager:
         if self.session is None or self.session.closed:
             self.session = aiohttp.ClientSession()
 
-        test_message = "Instruction"
-        async for _ in self.chat(test_message):
+        start_message = ""
+        async for _ in self.chat(start_message):
             pass
 
     async def chat(self, content: str) -> AsyncGenerator[str, None]:
