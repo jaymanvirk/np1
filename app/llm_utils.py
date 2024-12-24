@@ -3,7 +3,6 @@ from llm_manager import ollama_manager
 from tts_manager import tts_manager
 import time
 import json
-import re
 
 async def stream_audio(websocket, text):
     audio_bytes = await tts_manager.get_output(text)
@@ -14,10 +13,17 @@ async def stream_llm_output(websocket, model_name: str, stt_manager):
     m_id = int(time.time())
     flag = False
     text = ""
-    sentence_end = re.compile(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|!)\s')
     incomplete_sentence = ""
     async for output in ollama_manager.chat(stt_manager.transcription):
         flag = True
+        tmp = incomplete_sentence + output + " "
+        sentences = tmp.split("§")
+        if len(sentences) > 1:
+            output = output.replace("§","")
+            incomplete_sentence = sentences[-1]
+            await stream_audio(websocket, sentences[0])
+        else:
+            incomplete_sentence += output + " "
         text += output
         message = {
             "sender": {
@@ -27,17 +33,9 @@ async def stream_llm_output(websocket, model_name: str, stt_manager):
                 "id": m_id
             },
             "media": {
-                "text": text 
+                "text": text
             }
         }
-        tmp = incomplete_sentence + output + " "
-        sentences = sentence_end.split(tmp)
-        if len(sentences) > 1:
-            incomplete_sentence = sentences[-1]
-            await stream_audio(websocket, sentences[0])
-        else:
-            incomplete_sentence += output + " "
-
         asyncio.create_task(websocket.send_text(json.dumps(message)))
 
     if incomplete_sentence:
