@@ -37,9 +37,11 @@ RUN chmod +x ./install_pipertts.sh \
 # Install ollama
 RUN curl -sSL https://ollama.com/install.sh | sh
 
+COPY Modelfile .
+
 RUN ollama serve & \
     sleep 5 && \
-    ollama pull llama3.2
+    ollama create k -f ./Modelfile 
 
 # Copy requirements.txt first to leverage caching
 COPY requirements.txt .
