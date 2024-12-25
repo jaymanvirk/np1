@@ -25,24 +25,32 @@ async def process_queue(websocket
             if strm is not None and not strm.done() and stt_manager.sent_to_llm:
                 strm.cancel()
 
+                message = {
+                    "type": "command" 
+                    ,"command": "stop_audio" 
+                }
+
+                await websocket.send_text(json.dumps(message))
+
             # Ensure exclusive access to shared state
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = False
                 stt_manager.audio_bytes += audio_chunk
-        
+
                 audio_data = await get_processed_audio(stt_manager.audio_chunk_0, stt_manager.audio_bytes)
 
                 transcription = await get_transcription(audio_data)
                 stt_manager.transcription = transcription
- 
+
                 message = {
-                    "sender": {
+                    "type": "message"
+                    ,"sender": {
                         "name": "Me"
-                    },
-                    "meta": {
+                    }
+                    ,"meta": {
                         "id": stt_manager.id
-                    },
-                    "media": {
+                    }
+                    ,"media": {
                         "text": transcription
                     }
                 }
@@ -52,4 +60,4 @@ async def process_queue(websocket
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = True
             strm = asyncio.create_task(stream_llm_output(websocket, LLM_CHECKPOINT, stt_manager, llm_manager))
-   
+
