@@ -18,8 +18,25 @@ function get_html_message(data) {
     `;
 }
 
+function process_data(data, object) {
+    const data = JSON.parse(data);
+    if (data.type == "command") {
+        process_command(data, object);
+    else {
+        process_message(data)
+        scroll_to_bottom();
+    }
+}
+
+
+function process_command(data, object) {
+    if (data.command == "stop_audio") {
+        object.stop_audio();
+    }
+}
+
+
 function process_message(json_data) {
-    const data = JSON.parse(json_data);
     const chat = document.getElementById('chat');
     const m_div = document.querySelector(`div.message[id='${data.meta.id}']`);
     
