@@ -31,13 +31,14 @@ async def stream_llm_output(websocket, model_name: str, stt_manager, llm_manager
             incomplete_sentence += output + " "
         text += output
         message = {
-            "sender": {
+            "type": "message"
+            ,"sender": {
                 "name": "K"
-            },
-            "meta": {
+            }
+            ,"meta": {
                 "id": m_id
-            },
-            "media": {
+            }
+            ,"media": {
                 "text": text
             }
         }
