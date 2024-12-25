@@ -12,7 +12,8 @@ LLM_CHECKPOINT = os.getenv("LLM_CHECKPOINT")
 
 async def process_queue(websocket
                         , queue
-                        , stt_manager):
+                        , stt_manager
+                        , llm_manager):
     strm = None
     while True:
         audio_chunk = await queue.get()
@@ -50,5 +51,5 @@ async def process_queue(websocket
         elif not stt_manager.sent_to_llm:
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = True
-            strm = asyncio.create_task(stream_llm_output(websocket, LLM_CHECKPOINT, stt_manager))
+            strm = asyncio.create_task(stream_llm_output(websocket, LLM_CHECKPOINT, stt_manager, llm_manager))
    
