@@ -1,10 +1,7 @@
 import aiohttp
 import json
 from typing import AsyncGenerator, List
-import os
 
-OLLAMA_URL = os.getenv("OLLAMA_URL")
-LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME")
 
 class OllamaManager:
     def __init__(self, url: str, model_name: str):
@@ -47,6 +44,4 @@ class OllamaManager:
         """Close the aiohttp ClientSession"""
         if self.session and not self.session.closed:
             await self.session.close()       
-
-ollama_manager = OllamaManager(OLLAMA_URL, LLM_MODEL_NAME)
 
