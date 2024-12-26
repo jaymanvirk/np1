@@ -19,11 +19,11 @@ function get_html_message(data) {
 }
 
 function process_data(data, object) {
-    const data = JSON.parse(data);
-    if (data.type == "command") {
-        process_command(data, object);
+    const data_json = JSON.parse(data);
+    if (data_json.type == "command") {
+        process_command(data_json, object);
     else {
-        process_message(data)
+        process_message(data_json)
         scroll_to_bottom();
     }
 }
@@ -36,7 +36,7 @@ function process_command(data, object) {
 }
 
 
-function process_message(json_data) {
+function process_message(data) {
     const chat = document.getElementById('chat');
     const m_div = document.querySelector(`div.message[id='${data.meta.id}']`);
     
