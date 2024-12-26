@@ -22,7 +22,7 @@ function process_data(data, object) {
     const data_json = JSON.parse(data);
     if (data_json.type == "command") {
         process_command(data_json, object);
-    else {
+    } else {
         process_message(data_json)
         scroll_to_bottom();
     }
