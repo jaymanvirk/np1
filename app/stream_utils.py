@@ -13,14 +13,14 @@ async def stream_audio(websocket, text):
     audio_bytes = await tts_manager.get_output(text)
     await websocket.send_bytes(audio_bytes)
 
-async def stream_llm_output(websocket, model_name: str, stt_manager, llm_manager):
+
+async def stream_output(websocket, model_name: str, stt_manager, llm_manager):
     """Function to stream output from the Ollama subprocess."""
     m_id = int(time.time())
-    flag = False
     text = ""
     incomplete_sentence = ""
-    async for output in ollama_manager.chat(stt_manager.transcription):
-        flag = True
+    agen = ollama_manager.chat(stt_manager.transcription)
+    async for output in agen:
         tmp = incomplete_sentence + output + " "
         sentences = tmp.split("§")
         if len(sentences) > 1:
@@ -47,7 +47,8 @@ async def stream_llm_output(websocket, model_name: str, stt_manager, llm_manager
     if incomplete_sentence:
         await stream_audio(websocket, incomplete_sentence)
 
-    if flag:
+    if text:
         async with stt_manager.lock:
             stt_manager.id += 1
             stt_manager.audio_bytes = b''
+
