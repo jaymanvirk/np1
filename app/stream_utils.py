@@ -19,7 +19,7 @@ async def stream_output(websocket, model_name: str, stt_manager, llm_manager):
     m_id = int(time.time())
     text = ""
     incomplete_sentence = ""
-    agen = ollama_manager.chat(stt_manager.transcription)
+    agen = llm_manager.chat(stt_manager.transcription)
     async for output in agen:
         tmp = incomplete_sentence + output + " "
         sentences = tmp.split("§")
