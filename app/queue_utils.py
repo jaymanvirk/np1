@@ -1,6 +1,6 @@
 from audio_utils import get_processed_audio
 from stt_utils import get_transcription 
-from llm_utils import stream_llm_output
+from stream_utils import stream_output
 from vad_utils import is_speech
 import os
 import json
@@ -59,5 +59,5 @@ async def process_queue(websocket
         elif not stt_manager.sent_to_llm:
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = True
-            strm = asyncio.create_task(stream_llm_output(websocket, LLM_CHECKPOINT, stt_manager, llm_manager))
+            strm = asyncio.create_task(stream_output(websocket, LLM_CHECKPOINT, stt_manager, llm_manager))
 
