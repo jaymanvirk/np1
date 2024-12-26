@@ -37,7 +37,7 @@ class AudioManager {
     async play_audio(data) {
         await this.add_to_queue(data);
         if (!this.is_playing) {
-            await this.play_next_queue();
+            this.play_next_queue();
         }
     }
 
