@@ -27,7 +27,7 @@ async function stream_audio(){
         try {
             const data = event.data;
             if (typeof data === 'string'){
-                process_data(data);
+                process_data(data, audio_manager);
             } else {
                 audio_manager.play_audio(data);
             }
