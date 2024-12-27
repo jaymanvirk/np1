@@ -3,7 +3,7 @@ import json
 from typing import AsyncGenerator, List
 
 
-class OllamaManager:
+class LLMManager:
     def __init__(self, url: str, model_name: str):
         self.url = url
         self.model_name = model_name
