@@ -1,21 +1,15 @@
 import asyncio
-from tts_manager import TTSManager 
 import time
 import json
-import os
 import re
 
 
-TTS_CHECKPOINT = os.getenv("TTS_CHECKPOINT")
-
-
-async def stream_audio(websocket, text):
-    tts_manager = TTSManager(TTS_CHECKPOINT)
+async def stream_audio(websocket, text: str, tts_manager):
     audio_bytes = await tts_manager.get_output(text)
     await websocket.send_bytes(audio_bytes)
 
 
-async def stream_output(websocket, model_name: str, stt_manager, llm_manager):
+async def stream_output(websocket, model_name: str, stt_manager, llm_manager, tts_manager):
     """Function to stream output from the Ollama subprocess."""
     m_id = int(time.time())
     text = ""
@@ -31,7 +25,7 @@ async def stream_output(websocket, model_name: str, stt_manager, llm_manager):
             sentences = re.split(sentence_endings, tmp)
             if len(sentences) > 1:
                 incomplete_sentence = sentences[-1]
-                await stream_audio(websocket, sentences[0])
+                await stream_audio(websocket, sentences[0], tts_manager)
             else:
                 incomplete_sentence += output + " "
             text += output
