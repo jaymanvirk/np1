@@ -1,12 +1,14 @@
 from fastapi import WebSocket, APIRouter
 from queue_utils import process_queue
 from stt_manager import STTManager 
-from llm_manager import OllamaManager 
+from llm_manager import LLMManager 
+from tts_manager import TTSManager
 import asyncio
 import os
 
 OLLAMA_URL = os.getenv("OLLAMA_URL")
 LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME")
+TTS_CHECKPOINT = os.getenv('TTS_CHECKPOINT')
 
 router = APIRouter()
 
@@ -14,12 +16,14 @@ router = APIRouter()
 async def handle_stream_audio(websocket: WebSocket):
     await websocket.accept()
     queue = asyncio.Queue()
-    stt_manager = STTManager()
-   
-    ollama_manager = OllamaManager(OLLAMA_URL, LLM_MODEL_NAME)
-    await ollama_manager.start_session()
 
-    stream_task = asyncio.create_task(process_queue(websocket, queue, stt_manager, ollama_manager))
+    stt_manager = STTManager()
+    tts_manager = TTSManager(TTS_CHECKPOINT)
+    llm_manager = LLMManager(OLLAMA_URL, LLM_MODEL_NAME)
+    
+    await llm_manager.start_session()
+
+    stream_task = asyncio.create_task(process_queue(websocket, queue, stt_manager, llm_manager, tts_manager))
 
     try:
         stt_manager.audio_chunk_0 = await websocket.receive_bytes()
@@ -28,6 +32,6 @@ async def handle_stream_audio(websocket: WebSocket):
             await queue.put(audio_chunk)
     finally:
         stream_task.cancel()
-        await ollama_manager.close_session()
+        await llm_manager.close_session()
         await websocket.close()
 
