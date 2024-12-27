@@ -23,6 +23,9 @@ function process_data(data, object) {
     if (data_json.type == "command") {
         process_command(data_json, object);
     } else {
+        if (object.is_playing && data_json.sender.name != "K"){
+            object.stop_audio();
+        }
         process_message(data_json)
         scroll_to_bottom();
     }
