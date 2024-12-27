@@ -3,6 +3,7 @@ from tts_manager import TTSManager
 import time
 import json
 import os
+import re
 
 
 TTS_CHECKPOINT = os.getenv("TTS_CHECKPOINT")
@@ -19,12 +20,12 @@ async def stream_output(websocket, model_name: str, stt_manager, llm_manager):
     m_id = int(time.time())
     text = ""
     incomplete_sentence = ""
+    sentence_endings = r'(?<=[.!?])(?:\s+)?(?=[A-Z])'
     agen = llm_manager.chat(stt_manager.transcription)
     async for output in agen:
         tmp = incomplete_sentence + output + " "
-        sentences = tmp.split("§")
+        sentences = re.split(sentence_endings, tmp) 
         if len(sentences) > 1:
-            output = output.replace("§","")
             incomplete_sentence = sentences[-1]
             await stream_audio(websocket, sentences[0])
         else:
