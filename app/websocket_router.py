@@ -6,10 +6,6 @@ from tts_manager import TTSManager
 import asyncio
 import os
 
-OLLAMA_URL = os.getenv("OLLAMA_URL")
-LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME")
-TTS_CHECKPOINT = os.getenv('TTS_CHECKPOINT')
-
 router = APIRouter()
 
 @router.websocket("/v1/audio")
@@ -17,9 +13,12 @@ async def handle_stream_audio(websocket: WebSocket):
     await websocket.accept()
     queue = asyncio.Queue()
 
+    OLLAMA_URL = os.getenv("OLLAMA_URL")
+    LLM_CHECKPOINT = os.getenv("LLM_CHECKPOINT")
+
     stt_manager = STTManager()
-    tts_manager = TTSManager(TTS_CHECKPOINT)
-    llm_manager = LLMManager(OLLAMA_URL, LLM_MODEL_NAME)
+    tts_manager = TTSManager()
+    llm_manager = LLMManager(OLLAMA_URL, LLM_CHECKPOINT)
     
     await llm_manager.start_session()
 
