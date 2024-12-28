@@ -1,5 +1,8 @@
 import asyncio
+import os
 
+MC_DIR = os.getenv("MC_DIR")
+TTS_DIR_FULL = f'{MC_DIR}/{os.getenv("TTS_DIR")}'
 
 class TTSManager:
     def __init__(self):
@@ -17,7 +20,8 @@ class TTSManager:
             )
             self.processes[model_checkpoint] = process
 
-    async def get_output(self, text, model_checkpoint):
+    async def get_output(self, text, model_name):
+        model_checkpoint = f'{TTS_DIR_FULL}/{model_name}.onnx'
         await self.start_process(model_checkpoint)
         process = self.processes[model_checkpoint]
 
