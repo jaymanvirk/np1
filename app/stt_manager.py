@@ -10,3 +10,4 @@ class STTManager:
         self.lock = asyncio.Lock()  
         self.sent_to_llm = True 
         self.id = 0
+
