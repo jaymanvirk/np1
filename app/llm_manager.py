@@ -42,7 +42,7 @@ class LLMManager:
         finally:
             self.add_message("assistant", buffer_response)
 
-    async def close_session(self) -> None:
+    async def close(self) -> None:
         """Close the aiohttp ClientSession"""
         if self.session and not self.session.closed:
             await self.session.close()       
