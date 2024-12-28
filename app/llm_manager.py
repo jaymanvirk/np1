@@ -4,9 +4,9 @@ from typing import AsyncGenerator, List
 
 
 class LLMManager:
-    def __init__(self, url: str, model_name: str):
+    def __init__(self, url: str, model_checkpoint: str):
         self.url = url
-        self.model_name = model_name
+        self.model_checkpoint = model_checkpoint
         self.messages: List[dict] = []
         self.session: aiohttp.ClientSession = None        
 
@@ -30,7 +30,7 @@ class LLMManager:
         try:
             self.add_message("user", content)
             buffer_response = ""
-            async with self.session.post(self.url, json={"model": self.model_name, "messages": self.messages}) as response:
+            async with self.session.post(self.url, json={"model": self.model_checkpoint, "messages": self.messages}) as response:
                 if response.status == 200:
                     async for line in response.content:
                         output_line = line.decode().strip()
