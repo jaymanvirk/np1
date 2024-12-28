@@ -1,8 +1,12 @@
 import asyncio 
 import torch
 import numpy as np
+import os
 
-VAD_MODEL, _ = torch.hub.load(repo_or_dir='snakers4/silero-vad', model='silero_vad', onnx=True)
+VAD_DIR = os.getenv("VAD_DIR")
+VAD_CHECKPOINT = os.getenv("VAD_CHECKPOINT")
+
+VAD_MODEL, _ = torch.hub.load(repo_or_dir=f'{VAD_DIR}/{VAD_CHECKPOINT}', model=VAD_CHECKPOINT, onnx=True)
 # Optimize for CPU inference
 torch.set_num_threads(1)
 torch.set_num_interop_threads(1)
