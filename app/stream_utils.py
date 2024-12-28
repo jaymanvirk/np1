@@ -5,11 +5,12 @@ import re
 
 
 async def stream_audio(websocket, text: str, tts_manager):
-    audio_bytes = await tts_manager.get_output(text)
+    model_name = 'en'
+    audio_bytes = await tts_manager.get_output(text, model_name)
     await websocket.send_bytes(audio_bytes)
 
 
-async def stream_output(websocket, model_name: str, stt_manager, llm_manager, tts_manager):
+async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
     """Function to stream output from the Ollama subprocess."""
     m_id = int(time.time())
     text = ""
