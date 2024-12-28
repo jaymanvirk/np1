@@ -2,26 +2,26 @@ import asyncio
 
 
 class TTSManager:
-    def __init__(self, model_checkpoint):
-        self.model_checkpoint = model_checkpoint
-        self.process = None
+    def __init__(self):
+        self.processes = {}
 
-    async def start_process(self, text):
-        if self.process is None:
-            cmd = ["piper-cli", "--model", self.model_checkpoint, "--output_file", "-", "--cuda"]
+    async def start_process(self, model_checkpoint):
+        if model_checkpoint not in self.processes:
+            cmd = ["piper-cli", "--model", model_checkpoint, "--output_file", "-", "--cuda"]
 
-            self.process = await asyncio.create_subprocess_exec(
+            process = await asyncio.create_subprocess_exec(
                     *cmd,
                     stdin=asyncio.subprocess.PIPE,
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE
             )
+            self.processes[model_checkpoint] = process
 
-    async def get_output(self, text):
-        if self.process is None:
-            await self.start_process()
+    async def get_output(self, text, model_checkpoint):
+        await self.start_process(model_checkpoint)
+        process = self.processes[model_checkpoint]
 
-        stdout, stderr = await self.process.communicate(input=text.encode())
+        stdout, stderr = await process.communicate(input=text.encode())
 
         return stdout
 
