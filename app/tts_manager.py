@@ -25,3 +25,10 @@ class TTSManager:
 
         return stdout
 
+    async def close(self):
+        for model_checkpoint, process in self.processes.items():
+            process.terminate()
+            await process.wait()
+
+        self.processes.clear()
+
