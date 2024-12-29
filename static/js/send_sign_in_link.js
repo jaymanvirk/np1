@@ -1,4 +1,4 @@
-async function send_magic_link(){
+async function send_sign_in_link(){
     const email =  document.getElementById('email').value;
 
     const response = await fetch("/auth/v1/send_sign_in_link", {
