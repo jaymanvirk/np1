@@ -2,9 +2,10 @@ import asyncio
 import time
 import json
 import re
-
+from ld_utils import detect_language
 
 async def stream_audio(websocket, text: str, tts_manager):
+    #TODO: split text into sentences for each language and run them consecutively 
     model_name = 'en'
     audio_bytes = await tts_manager.get_output(text, model_name)
     await websocket.send_bytes(audio_bytes)
