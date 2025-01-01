@@ -6,3 +6,4 @@ torchaudio
 onnxruntime
 aiohttp
 onnxruntime-gpu
+lingua-language-detector
