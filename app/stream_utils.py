@@ -6,13 +6,11 @@ from ld_utils import detect_language
 
 async def stream_audio(websocket, text: str, tts_manager):
     #TODO: split text into sentences for each language and run them consecutively 
-    model_name = 'en'
     audio_bytes = await tts_manager.get_output(text, model_name)
     await websocket.send_bytes(audio_bytes)
 
 
 async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
-    """Function to stream output from the Ollama subprocess."""
     m_id = int(time.time())
     text = ""
     incomplete_sentence = ""
