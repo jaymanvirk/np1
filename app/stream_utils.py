@@ -1,7 +1,6 @@
 import asyncio
 import time
 import json
-import re
 from ld_utils import get_detected_langs
 
 async def stream_audio(websocket, text: str, tts_manager):
@@ -16,7 +15,6 @@ async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
     m_id = int(time.time())
     text = ""
     incomplete_sentence = ""
-    sentence_endings = r'(?<=[.!?])(?:\s+)?(?=[A-Z])'
     agen = llm_manager.chat(stt_manager.transcription)
     output = await anext(agen)
     if "§" not in output:
@@ -24,9 +22,11 @@ async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
         incomplete_sentence = output
         async for output in agen:
             tmp = incomplete_sentence + output + " "
-            sentences = re.split(sentence_endings, tmp)
-            if len(sentences) > 1:
-                incomplete_sentence = sentences[-1]
+            sentences = list(filter(None, tmp.split("±"))) 
+            lns = len(sentences)
+            if lns:
+                if lns>1:
+                    incomplete_sentence = sentences[-1]
                 await stream_audio(websocket, sentences[0], tts_manager)
             else:
                 incomplete_sentence += output + " "
@@ -46,7 +46,7 @@ async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
             asyncio.create_task(websocket.send_text(json.dumps(message)))
 
         if incomplete_sentence:
-            await stream_audio(websocket, incomplete_sentence)
+            await stream_audio(websocket, incomplete_sentence, tts_manager)
 
     if text:
         async with stt_manager.lock:
