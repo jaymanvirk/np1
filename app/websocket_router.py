@@ -32,6 +32,5 @@ async def handle_stream_audio(websocket: WebSocket):
     finally:
         stream_task.cancel()
         await llm_manager.close()
-        await tts_manager.close()
         await websocket.close()
 
