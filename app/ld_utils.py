@@ -2,6 +2,7 @@ from lingua import Language, LanguageDetectorBuilder
 import pycld2 as cld2
 from ld_manager import LangListManager
 import re
+import os
 
 LINGUA_LANGUAGES = os.getenv('LINGUA_LANGUAGES').split(',')
 LANGUAGES = [getattr(Language, lang.strip().upper()) for lang in LINGUA_LANGUAGES]
