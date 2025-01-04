@@ -22,11 +22,3 @@ class LangListManager:
             node.next = current.next
             current.next = node
 
-    def get_list_lang_text(self, text):
-        current = self.head
-        result = []
-        while current:
-            result.append((current.lang, text[current.start_index: current.end_index]))
-            current = current.next
-            
-        return result
