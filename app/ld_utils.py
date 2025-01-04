@@ -7,7 +7,7 @@ LINGUA_LANGUAGES = os.getenv('LINGUA_LANGUAGES').split(',')
 LANGUAGES = [getattr(Language, lang.strip().upper()) for lang in LINGUA_LANGUAGES]
 DETECTOR = LanguageDetectorBuilder.from_languages(*LANGUAGES).build()
 
-def get_detected_langs_text(text):
+def get_detected_langs(text):
     result = DETECTOR.detect_multiple_languages_of(text)
     langs_lingua = {}
     for r in result:
@@ -66,4 +66,4 @@ def get_detected_langs_text(text):
         linked_list.insert(prev_lang, tmp[0], tmp[1])
 
 
-    return linked_list.get_list_lang_text(text)
+    return linked_list
