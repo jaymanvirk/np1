@@ -1,15 +1,18 @@
 import asyncio
 import time
 import json
-from ld_utils import get_detected_langs
+from lingua import Language, LanguageDetectorBuilder
+import os
+
+LINGUA_LANGUAGES = os.getenv('LINGUA_LANGUAGES').split(',')
+LANGUAGES = [getattr(Language, lang.strip().upper()) for lang in LINGUA_LANGUAGES]
+DETECTOR = LanguageDetectorBuilder.from_languages(*LANGUAGES).build()
 
 async def stream_audio(websocket, text: str, tts_manager):
-    dl = get_detected_langs(text)
-    current = dl.head
-    while current:
-        audio_bytes = await tts_manager.get_output(text[current.start_index: current.end_index], current.lang)
+    result = DETECTOR.detect_multiple_languages_of(text)
+    for r in result:
+        audio_bytes = await tts_manager.get_output(text[r.start_index: r.end_index], r.language.name)
         await websocket.send_bytes(audio_bytes)
-        current = current.next
 
 async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
     m_id = int(time.time())
