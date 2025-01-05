@@ -5,7 +5,8 @@ from typing import AsyncGenerator, List
 
 class LLMManager:
     def __init__(self, url: str, model_checkpoint: str):
-        self.url = url
+        self.url_chat = f'{url}/chat'
+        self.url_embed = f'{url}/embeddings'
         self.model_checkpoint = model_checkpoint
         self.messages: List[dict] = []
         self.session: aiohttp.ClientSession = None        
@@ -30,7 +31,7 @@ class LLMManager:
         try:
             self.add_message("user", content)
             buffer_response = ""
-            async with self.session.post(self.url, json={"model": self.model_checkpoint, "messages": self.messages}) as response:
+            async with self.session.post(self.url_chat, json={"model": self.model_checkpoint, "messages": self.messages}) as response:
                 if response.status == 200:
                     async for line in response.content:
                         output_line = line.decode().strip()
@@ -41,6 +42,19 @@ class LLMManager:
                             yield output
         finally:
             self.add_message("assistant", buffer_response)
+    
+    async def fetch_embedding(prompt):
+        headers = {'Content-Type': 'application/json'}
+        payload = {
+            "model": "mxbai-embed-large",
+            "prompt": prompt
+        }
+
+        async with self.session.post(self.url_embed, headers=headers, data=json.dumps(payload)) as response:
+            if response.status == 200:
+                result = await response.json()
+
+                return result["embedding"]
 
     async def close(self) -> None:
         """Close the aiohttp ClientSession"""
