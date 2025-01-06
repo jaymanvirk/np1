@@ -15,10 +15,12 @@ async def handle_stream_audio(websocket: WebSocket):
 
     OLLAMA_URL = os.getenv("OLLAMA_URL")
     LLM_CHECKPOINT = os.getenv("LLM_CHECKPOINT")
+    EMBED_CHECKPOINT = os.getenv("EMBED_CHECKPOINT")
+    LLM_INSTRUCTION_GEN = os.getenv("LLM_INSTRUCTION_GEN")
 
     stt_manager = STTManager()
     tts_manager = TTSManager()
-    llm_manager = LLMManager(OLLAMA_URL, LLM_CHECKPOINT)
+    llm_manager = LLMManager(OLLAMA_URL, LLM_CHECKPOINT, EMBED_CHECKPOINT, LLM_INSTRUCTION_GEN)
     
     await llm_manager.start_session()
 
