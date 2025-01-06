@@ -1,65 +1,24 @@
-#from db_manager import mongodb_client
-from datetime import datetime, timedelta
-import uuid
+from pymilvus import connections, FieldSchema, CollectionSchema, DataType, Collection
+import os
+import pandas as pd
 
-class QueryParams:
-    def __init__(self, collection, _filter, data=None, _from=None, local_field=None, foreign_field=None, _as=None, project=None):
-        self.collection = collection
-        self._filter = _filter
-        self.data = data
-        self._from = _from
-        self.local_field = local_field
-        self.foreign_field = foreign_field
-        self._as = _as
-        self.project = project
-        
+connections.connect(os.getenv("MILVUS_CON_NAME"), host=os.getenv("MILVUS_HOST"), port=os.getenv("MILVUS_PORT"))
 
-class MongoDBService:
-    def __init__(self, db_name = "users"):
-        self.db = mongodb_client[db_name]
-        self.ids = {}
+embedding_field = FieldSchema(name="embedding", dtype=DataType.FLOAT_VECTOR, dim=4096)
+schema = CollectionSchema(fields=[embedding_field], description="Collection with embeddings only")
+collection = Collection(name="data", schema=schema)
+data = pd.read_csv(os.getenv("DATASET_FILE_PATH"))
+batch_size = 512
+ln = len(data)
+for start in range(0, ln, batch_size): 
+    end = min(start + batch_size, ln)
+    batch = data.iloc[start:end]
+    #TODO: run parallel embedding generation
+    collection.insert([embeddings])
 
-    async def get_document(self, params):
-        return await self.db[params.collection].find_one(params._filter)
+collection.create_index(field_name="embedding", index_params={
+    "metric_type": "L2",
+    "index_type": "IVF_FLAT",
+    "params": {"nlist": 1024}
+})
 
-
-    async def set_document(self, params, operator = "set"):
-        result = await self.db[params.collection].update_one(
-                    params._filter
-                    , {
-                        f"${operator}": params.data
-                    }
-                    , upsert = True
-                )
-
-        self.ids[params.collection] = result.upserted_id
-
-
-    async def get_join_documents(self, params):
-        pipeline = [
-            {"$match": params._filter}
-            , {
-                "$lookup": {
-                    "from": params._from 
-                    , "localField": params.local_field 
-                    , "foreignField": params.foreign_field 
-                    , "as": params._as
-                }
-            }
-            , {
-                "$project": params.project
-            }
-        ]
-
-        return [doc async for doc in self.db[params.collection].aggregate(pipeline)]
-
-
-def is_token_expired(timestamp, time_dict):
-    ts = datetime.fromtimestamp(timestamp)
-    token_age = datetime.utcnow() - ts
-
-    return token_age > timedelta(**time_dict)
-
-
-def get_token():
-    return {"token": str(uuid.uuid4()), "created_at": datetime.utcnow().timestamp()}
