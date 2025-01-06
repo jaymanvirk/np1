@@ -18,7 +18,7 @@ async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
     m_id = int(time.time())
     text = ""
     incomplete_sentence = ""
-    agen = llm_manager.chat(stt_manager.transcription)
+    agen = llm_manager.get_chat(stt_manager.transcription)
     output = await anext(agen)
     if "§" not in output:
         text = output
