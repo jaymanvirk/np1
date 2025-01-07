@@ -1,10 +1,17 @@
 import aiohttp
 import json
 from typing import AsyncGenerator, List
+import os
 
 
 class LLMManager:
-    def __init__(self, url: str, model_checkpoint: str, model_checkpoint_embed: str, instrucion_gen: str):
+    def __init__(
+                   self
+                 , url=os.getenv("OLLAMA_URL")
+                 , model_checkpoint=os.getenv("LLM_CHECKPOINT")
+                 , model_checkpoint_embed=os.getenv("EMBED_CHECKPOINT")
+                 , instrucion_gen=os.getenv("LLM_INSTRUCTION_GEN")
+                 )
         self.url_chat = f'{url}/chat'
         self.url_embed = f'{url}/embeddings'
         self.url_gen = f'{url}/generate'
