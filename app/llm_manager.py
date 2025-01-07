@@ -33,7 +33,7 @@ class LLMManager:
             self.session = aiohttp.ClientSession()
 
         start_message = ""
-        async for _ in self.chat(start_message):
+        async for _ in self.get_chat(start_message):
             pass
 
     async def get_chat(self, content: str) -> AsyncGenerator[str, None]:
