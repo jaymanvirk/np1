@@ -11,7 +11,7 @@ DETECTOR = LanguageDetectorBuilder.from_languages(*LANGUAGES).build()
 async def stream_audio(websocket, text: str, tts_manager):
     result = DETECTOR.detect_multiple_languages_of(text)
     for r in result:
-        audio_bytes = await tts_manager.get_output(text[r.start_index: r.end_index], r.language.name)
+        audio_bytes = await tts_manager.get_output(text[r.start_index: r.end_index], r.language.name.lower())
         await websocket.send_bytes(audio_bytes)
 
 async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
@@ -25,12 +25,11 @@ async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
         incomplete_sentence = output
         async for output in agen:
             tmp = incomplete_sentence + output + " "
-            sentences = list(filter(None, tmp.split("±"))) 
-            lns = len(sentences)
-            if lns:
-                if lns>1:
+            if "±" in tmp:
+                sentences = list(filter(None, tmp.split("±"))) 
+                if len(sentences)>1:
                     incomplete_sentence = sentences[-1]
-                await stream_audio(websocket, sentences[0], tts_manager)
+                    await stream_audio(websocket, sentences[0], tts_manager)
             else:
                 incomplete_sentence += output + " "
             text += output
