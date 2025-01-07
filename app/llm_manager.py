@@ -10,7 +10,7 @@ class LLMManager:
                  , url=os.getenv("OLLAMA_URL")
                  , model_checkpoint=os.getenv("LLM_CHECKPOINT")
                  , model_checkpoint_embed=os.getenv("EMBED_CHECKPOINT")
-                 , instrucion_gen=os.getenv("LLM_INSTRUCTION_GEN")
+                 , instruction_gen=os.getenv("LLM_INSTRUCTION_GEN")
                  ):
         self.url_chat = f'{url}/chat'
         self.url_embed = f'{url}/embeddings'
