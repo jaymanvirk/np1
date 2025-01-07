@@ -24,7 +24,7 @@ RUN mkdir -p /app/model_checkpoints
 
 # Download the Whisper Turbo model
 RUN python -c "import whisper; \
-    model = whisper.load_model('tiny', download_root='/app/model_checkpoints/whisper');"
+    model = whisper.load_model('turbo', download_root='/app/model_checkpoints/whisper');"
 
 RUN python -c "import torch; \
     model = torch.hub.load(repo_or_dir='snakers4/silero-vad', model='silero_vad', onnx=True);"
