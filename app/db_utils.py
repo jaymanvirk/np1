@@ -2,6 +2,7 @@ from pymilvus import connections, FieldSchema, CollectionSchema, DataType, Colle
 import os
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor
+from llm_manager import LLMManager
 
 OLLAMA_URL = os.getenv("OLLAMA_URL")
 LLM_CHECKPOINT = os.getenv("LLM_CHECKPOINT")
