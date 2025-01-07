@@ -9,10 +9,19 @@ EMBED_CHECKPOINT = os.getenv("EMBED_CHECKPOINT")
 LLM_INSTRUCTION_GEN = os.getenv("LLM_INSTRUCTION_GEN")
 LLMM = LLMManager(OLLAMA_URL, LLM_CHECKPOINT, EMBED_CHECKPOINT, LLM_INSTRUCTION_GEN)
 
+
+def get_milvus_data(query_embedding, milvus_manager):
+    results = milvus_manager.search(query_embedding)
+    data = []
+    for hits in results:
+        for hit in hits:
+            data.append(hit.entity.get('data'))
+
+    return data 
+
 def set_milvus_collection():
     connections.connect(
-        os.getenv("MILVUS_CON_NAME")
-        , host=os.getenv("MILVUS_HOST")
+        host=os.getenv("MILVUS_HOST")
         , port=os.getenv("MILVUS_PORT")
     )
 
@@ -38,7 +47,6 @@ def set_milvus_collection():
         , index_params={
             "metric_type": "L2"
             , "index_type": "IVF_FLAT"
-            , "params": {"nlist": 1024}
         }
     )
 
