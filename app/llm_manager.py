@@ -11,7 +11,7 @@ class LLMManager:
                  , model_checkpoint=os.getenv("LLM_CHECKPOINT")
                  , model_checkpoint_embed=os.getenv("EMBED_CHECKPOINT")
                  , instrucion_gen=os.getenv("LLM_INSTRUCTION_GEN")
-                 )
+                 ):
         self.url_chat = f'{url}/chat'
         self.url_embed = f'{url}/embeddings'
         self.url_gen = f'{url}/generate'
