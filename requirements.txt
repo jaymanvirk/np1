@@ -8,4 +8,3 @@ aiohttp
 onnxruntime-gpu
 lingua-language-detector
 pymilvus
-whisperx
