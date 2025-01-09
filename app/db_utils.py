@@ -1,8 +1,8 @@
 from pymilvus import connections, FieldSchema, CollectionSchema, DataType, Collection
 import os
-import pandas as pd
 from concurrent.futures import ThreadPoolExecutor
 from llm_manager import LLMManager
+import asyncio
 
 OLLAMA_URL = os.getenv("OLLAMA_URL")
 LLM_CHECKPOINT = os.getenv("LLM_CHECKPOINT")
@@ -34,14 +34,26 @@ def set_milvus_collection():
     schema = CollectionSchema(fields=fields, description="Data collection")
     collection = Collection(name="data", schema=schema)
 
-    data = pd.read_csv(os.getenv("DATASET_FILE_PATH"))
+    file_path = os.getenv("DATASET_FILE_PATH")
 
-    batch_size = 512
-    ln = len(data)
-    num_batches = ln // batch_size + (ln % batch_size != 0)*1
+    def insert_batch(batch):
+        data = [str(item) for item in batch]
+        tasks = [LLMM.get_embedding(item) for item in data]
+        embeddings = await asyncio.gather(*tasks)
+        collection.insert([{"data": data}, {"embeddings": embeddings}])
+    
+    def read_csv_batches(file_path, batch_size = 512):
+        with open(file_path, 'r') as csv_file:
+            csv_reader = csv.DictReader(csv_file)
+            while True:
+                batch = list(islice(csv_reader, batch_size))
+                if not batch:
+                    break
+                yield batch
+
     with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-        batches = [data.iloc[i*batch_size:(i+1)*batch_size] for i in range(num_batches)]
-        list(executor.map(insert_batch, batches))
+        batches = read_csv_batches(file_path)
+        executor.map(insert_batch, batches)
 
     collection.create_index(
         field_name="embedding"
@@ -53,11 +65,6 @@ def set_milvus_collection():
 
     connections.disconnect("default")
 
-
-def insert_batch(batch):
-    texts = batch['data'].tolist()
-    embeddings = [LLMM.get_embedding(text) for text in texts]
-    collection.insert([texts, embeddings])
     
 
 if __name__ == '__main__':
