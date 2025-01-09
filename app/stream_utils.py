@@ -21,6 +21,9 @@ async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
     agen = llm_manager.get_chat(stt_manager.transcription)
     output = await anext(agen)
     if "§" not in output:
+        async with stt_manager.lock:
+            stt_manager.id += 1
+            stt_manager.audio_bytes = b''
         text = output
         incomplete_sentence = output
         async for output in agen:
@@ -50,8 +53,4 @@ async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
         if incomplete_sentence:
             await stream_audio(websocket, incomplete_sentence, tts_manager)
 
-    if text:
-        async with stt_manager.lock:
-            stt_manager.id += 1
-            stt_manager.audio_bytes = b''
 
