@@ -32,7 +32,7 @@ async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
                 sentences = list(filter(lambda x: x.strip(), tmp.split("±"))) 
                 if len(sentences)>1:
                     incomplete_sentence = sentences[-1]
-                await stream_audio(websocket, sentences[0], tts_manager)
+                    await stream_audio(websocket, sentences[0], tts_manager)
             else:
                 incomplete_sentence += output + " "
             text += output
