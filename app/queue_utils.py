@@ -1,5 +1,4 @@
 from audio_utils import get_processed_audio
-from stt_utils import get_transcription 
 from stream_utils import stream_output, stream_transcription
 from vad_utils import is_speech
 import json
