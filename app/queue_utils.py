@@ -1,6 +1,6 @@
 from audio_utils import get_processed_audio
 from stt_utils import get_transcription 
-from stream_utils import stream_output
+from stream_utils import stream_output, stream_transcription
 from vad_utils import is_speech
 import json
 import asyncio
@@ -11,7 +11,8 @@ async def process_queue(websocket
                         , stt_manager
                         , llm_manager
                         , tts_manager):
-    strm = None
+    tasks_llm = []
+    tasks_stt = []
     while True:
         audio_chunk = await queue.get()
        
@@ -19,8 +20,9 @@ async def process_queue(websocket
         speech = await is_speech(tmp_chunk)
 
         if speech:
-            if strm is not None and not strm.done() and stt_manager.sent_to_llm:
-                strm.cancel()
+            if stt_manager.sent_to_llm:
+                for t in tasks_llm:
+                    t.cancel()
 
                 message = {
                     "type": "command" 
@@ -29,32 +31,24 @@ async def process_queue(websocket
 
                 await websocket.send_text(json.dumps(message))
 
-            # Ensure exclusive access to shared state
+                await asyncio.gather(*tasks_llm, return_exceptions=True)
+                tasks_llm.clear()
+
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = False
                 stt_manager.audio_bytes += audio_chunk
 
-                audio_data = await get_processed_audio(stt_manager.audio_chunk_0, stt_manager.audio_bytes)
+            tasks_stt.append(asyncio.create_task(stream_transcription(websocket, stt_manager)))
 
-                transcription = await get_transcription(audio_data)
-                stt_manager.transcription = transcription
-
-                message = {
-                    "type": "message"
-                    ,"sender": {
-                        "name": "Me"
-                    }
-                    ,"meta": {
-                        "id": stt_manager.id
-                    }
-                    ,"media": {
-                        "text": transcription
-                    }
-                }
-
-            await websocket.send_text(json.dumps(message))
         elif not stt_manager.sent_to_llm:
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = True
-            strm = asyncio.create_task(stream_output(websocket, stt_manager, llm_manager, tts_manager))
+
+            for t in tasks_stt:
+                t.cancel()
+            await asyncio.gather(*tasks_stt, return_exceptions=True)
+            tasks_stt.clear()
+
+            tasks_llm.append(asyncio.create_task(stream_output(websocket, stt_manager, llm_manager, tts_manager)))
+
 
