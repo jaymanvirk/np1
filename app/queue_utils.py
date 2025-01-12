@@ -36,8 +36,8 @@ async def process_queue(websocket
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = False
                 stt_manager.audio_bytes += audio_chunk
-
-            tasks_stt.append(asyncio.create_task(stream_transcription(websocket, stt_manager)))
+            if len(stt_manager.audio_bytes) >= (len(tasks_stt)+1)*8000:
+                tasks_stt.append(asyncio.create_task(stream_transcription(websocket, stt_manager)))
 
         elif not stt_manager.sent_to_llm:
             async with stt_manager.lock:
