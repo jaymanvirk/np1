@@ -15,7 +15,7 @@ async function stream_audio(){
             }
         };
 
-        mediaRecorder.start(500);
+        mediaRecorder.start(221);
     })
     .catch(error => console.error("Error accessing microphone: ", error));
 
