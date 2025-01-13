@@ -9,7 +9,7 @@ async def get_processed_audio(audio_chunk_0, audio_bytes):
 
     # Use ffmpeg to convert the input audio bytes to WAV
     process = await asyncio.create_subprocess_exec(
-        'ffmpeg', '-i', 'pipe:0', '-ar', '16000', '-ac', '1', '-f', 'wav', 'pipe:1',
+        'ffmpeg', '-i', 'pipe:0', '-f', 'wav', 'pipe:1',
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
