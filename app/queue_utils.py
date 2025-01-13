@@ -14,10 +14,11 @@ async def process_queue(websocket
     tasks_stt = []
     while True:
         audio_chunk = await queue.get()
-       
-        tmp_chunk = await get_processed_audio(stt_manager.audio_chunk_0, audio_chunk)
-        speech = await is_speech(tmp_chunk)
-
+        try:
+            tmp_chunk = await get_processed_audio(stt_manager.audio_chunk_0, audio_chunk)
+            speech = await is_speech(tmp_chunk)
+        except Exception as e:
+            pass
         if speech:
             if stt_manager.sent_to_llm:
                 for t in tasks_llm:
@@ -36,9 +37,7 @@ async def process_queue(websocket
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = False
                 stt_manager.audio_bytes += audio_chunk
-            diff = len(stt_manager.audio_bytes) - (len(tasks_stt)+1)*8000
-            if diff > -1:
-                tasks_stt.append(asyncio.create_task(stream_transcription(websocket, stt_manager)))
+            tasks_stt.append(asyncio.create_task(stream_transcription(websocket, stt_manager)))
         elif not stt_manager.sent_to_llm:
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = True
@@ -46,8 +45,7 @@ async def process_queue(websocket
                 t.cancel()
             await asyncio.gather(*tasks_stt, return_exceptions=True)
             tasks_stt.clear()
-            if diff < 0:
-                await stream_transcription(websocket, stt_manager)
+            await stream_transcription(websocket, stt_manager, True)
             tasks_llm.append(asyncio.create_task(stream_output(websocket, stt_manager, llm_manager, tts_manager)))
 
 
