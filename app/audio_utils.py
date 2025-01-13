@@ -6,19 +6,17 @@ import asyncio
 
 async def get_processed_audio(audio_chunk_0, audio_bytes):
     combined_audio = audio_chunk_0 + audio_bytes
-    # Convert audio bytes to WAV format using ffmpeg
-    input_buffer = io.BytesIO(combined_audio)
 
     # Use ffmpeg to convert the input audio bytes to WAV
     process = await asyncio.create_subprocess_exec(
-        'ffmpeg', '-i', 'pipe:0', '-f', 'wav', 'pipe:1',
+        'ffmpeg', '-i', 'pipe:0', '-ar', '16000', '-ac', '1', '-f', 'wav', 'pipe:1',
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )
 
     # Write the input bytes to ffmpeg's stdin and read from stdout
-    wav_data, _ = await process.communicate(input=input_buffer.getvalue())
+    wav_data, _ = await process.communicate(input=combined_audio)
 
     # Read audio bytes directly into a numpy array using soundfile
     audio_segment, sr = await asyncio.to_thread(sf.read, io.BytesIO(wav_data))
