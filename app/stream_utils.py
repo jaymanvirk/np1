@@ -11,11 +11,12 @@ LINGUA_LANGUAGES = os.getenv('LINGUA_LANGUAGES').split(',')
 LANGUAGES = [getattr(Language, lang.strip().upper()) for lang in LINGUA_LANGUAGES]
 DETECTOR = LanguageDetectorBuilder.from_languages(*LANGUAGES).build()
 
-async def stream_transcription(websocket, stt_manager):
-    audio_data = await get_processed_audio(stt_manager.audio_chunk_0, stt_manager.audio_bytes)
-
-    transcription = await get_transcription(audio_data)
-    stt_manager.transcription = transcription
+async def stream_transcription(websocket, stt_manager, show = False):
+    transcription = str(stt_manager.audio_bytes[:int(0.00013*len(stt_manager.audio_bytes))])
+    if show:
+        audio_data = await get_processed_audio(stt_manager.audio_chunk_0, stt_manager.audio_bytes)
+        transcription = await get_transcription(audio_data)
+        stt_manager.transcription = transcription
 
     message = {
         "type": "message"
@@ -35,15 +36,21 @@ async def stream_transcription(websocket, stt_manager):
 
 
 async def stream_audio(websocket, text: str, tts_manager):
+    """
     result = DETECTOR.detect_multiple_languages_of(text)
+    logger.info("STREAM AUDIO:")
+    logger.info(f'{text} | {result}')
     for r in result:
         audio_bytes = await tts_manager.get_output(text[r.start_index: r.end_index], r.language.name.lower())
         await websocket.send_bytes(audio_bytes)
+    """
+    audio_bytes = await tts_manager.get_output(text, "english")
+    await websocket.send_bytes(audio_bytes)
 
 async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
     m_id = int(time.time())
     text = ""
-    incomplete_sentence = ""
+    tmp = ""
     agen = llm_manager.get_chat(stt_manager.transcription)
     output = await anext(agen)
     if "§" not in output:
@@ -51,17 +58,17 @@ async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
             stt_manager.id += 1
             stt_manager.audio_bytes = b''
         text = output
-        incomplete_sentence = output
+        tmp = output
         async for output in agen:
-            tmp = incomplete_sentence + output + " "
             if "±" in tmp:
-                sentences = list(filter(lambda x: x.strip(), tmp.split("±"))) 
+                sentences = list(filter(None, tmp.split("±")))
+                tmp = ""
                 if len(sentences)>1:
-                    incomplete_sentence = sentences[-1]
-                    await stream_audio(websocket, sentences[0], tts_manager)
+                    tmp = sentences[-1]
+                await stream_audio(websocket, sentences[0], tts_manager)
             else:
-                incomplete_sentence += output + " "
-            text += output
+                tmp += output
+            text += output.replace("±","")
             message = {
                 "type": "message"
                 ,"sender": {
@@ -76,7 +83,7 @@ async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
             }
             asyncio.create_task(websocket.send_text(json.dumps(message)))
 
-        if incomplete_sentence:
-            await stream_audio(websocket, incomplete_sentence, tts_manager)
+        if tmp:
+            await stream_audio(websocket, tmp, tts_manager)
 
 
