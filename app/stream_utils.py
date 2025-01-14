@@ -11,12 +11,10 @@ LINGUA_LANGUAGES = os.getenv('LINGUA_LANGUAGES').split(',')
 LANGUAGES = [getattr(Language, lang.strip().upper()) for lang in LINGUA_LANGUAGES]
 DETECTOR = LanguageDetectorBuilder.from_languages(*LANGUAGES).build()
 
-async def stream_transcription(websocket, stt_manager, show = False):
-    transcription = str(stt_manager.audio_bytes[:int(0.00013*len(stt_manager.audio_bytes))])
-    if show:
-        audio_data = await get_processed_audio(stt_manager.audio_chunk_0, stt_manager.audio_bytes)
-        transcription = await get_transcription(audio_data)
-        stt_manager.transcription = transcription
+async def stream_transcription(websocket, stt_manager):
+    audio_data = await get_processed_audio(stt_manager.audio_chunk_0, stt_manager.audio_bytes)
+    transcription = await get_transcription(audio_data)
+    stt_manager.transcription = transcription
 
     message = {
         "type": "message"
