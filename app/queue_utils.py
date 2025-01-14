@@ -45,7 +45,7 @@ async def process_queue(websocket
                 t.cancel()
             await asyncio.gather(*tasks_stt, return_exceptions=True)
             tasks_stt.clear()
-            await stream_transcription(websocket, stt_manager, True)
+
             tasks_llm.append(asyncio.create_task(stream_output(websocket, stt_manager, llm_manager, tts_manager)))
 
 
