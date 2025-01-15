@@ -15,7 +15,7 @@ async def process_queue(websocket
     while True:
         audio_chunk = await queue.get()
         try:
-            tmp_chunk = await get_processed_audio(stt_manager.audio_chunk_0, audio_chunk)
+            tmp_chunk = await get_processed_audio(stt_manager.audio_chunk_0 + audio_chunk)
             speech = await is_speech(tmp_chunk)
         except Exception as e:
             pass
