@@ -34,16 +34,10 @@ async def stream_transcription(websocket, stt_manager):
 
 
 async def stream_audio(websocket, text: str, tts_manager):
-    """
     result = DETECTOR.detect_multiple_languages_of(text)
-    logger.info("STREAM AUDIO:")
-    logger.info(f'{text} | {result}')
     for r in result:
         audio_bytes = await tts_manager.get_output(text[r.start_index: r.end_index], r.language.name.lower())
         await websocket.send_bytes(audio_bytes)
-    """
-    audio_bytes = await tts_manager.get_output(text, "english")
-    await websocket.send_bytes(audio_bytes)
 
 async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
     m_id = int(time.time())
