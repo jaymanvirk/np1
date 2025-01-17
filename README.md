@@ -4,6 +4,7 @@
 - Whisper STT
 - LLaMA 3.2
 - Silero VAD
+- Lingua
 - Piper TTS
 - FastAPI
 - Milvus
