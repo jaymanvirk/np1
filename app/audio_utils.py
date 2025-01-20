@@ -4,19 +4,20 @@ import soundfile as sf
 import asyncio 
 
 
-async def get_processed_audio(audio_bytes):
+async def get_processed_audio(audio_chunk_0, audio_chunk):
+    combined_audio = audio_chunk_0 + audio_chunk
     process = await asyncio.create_subprocess_exec(
-        'ffmpeg', '-i', 'pipe:0', '-af', 'aresample=async=1:min_hard_comp=0.100000:first_pts=0', '-f', 'wav', 'pipe:1',
+        'ffmpeg', '-i', 'pipe:0', '-f', 'wav', 'pipe:1',
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )
 
-    wav_data, _ = await process.communicate(input=audio_bytes)
+    wav_data, _ = await process.communicate(input=combined_audio)
 
     audio_segment, sr = await asyncio.to_thread(sf.read, io.BytesIO(wav_data))
 
-    chunk_0_samples = int(len(audio_chunk_0) * sr / len(combined_audio))
+    chunk_0_samples = int(len(audio_chunk_0) * len(audio_segment) / len(combined_audio))
 
     trimmed_audio = audio_segment[chunk_0_samples:]
 
