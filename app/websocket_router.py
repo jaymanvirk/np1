@@ -25,8 +25,13 @@ async def handle_stream_audio(websocket: WebSocket):
         while True:
             audio_chunk = await websocket.receive_bytes()
             await queue.put(audio_chunk)
+    except Exception as e:
+        pass
     finally:
-        stream_task.cancel()
-        await llm_manager.close()
-        await websocket.close()
+        try:
+            stream_task.cancel()
+            await llm_manager.close()
+            await websocket.close()
+        except Exception as e:
+            pass
 
