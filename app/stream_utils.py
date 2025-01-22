@@ -35,6 +35,8 @@ async def stream_transcription(websocket, stt_manager):
 
 async def stream_audio(websocket, text: str, tts_manager):
     result = DETECTOR.detect_multiple_languages_of(text)
+    if len(result)<1:
+        result = [{"start_index":0, "end_index":len(text), "language":{"name":"english"}}]
     for r in result:
         audio_bytes = await tts_manager.get_output(text[r.start_index: r.end_index], r.language.name.lower())
         await websocket.send_bytes(audio_bytes)
