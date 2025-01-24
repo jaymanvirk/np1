@@ -9,7 +9,6 @@ from audio_utils import get_processed_audio
 
 LINGUA_LANGUAGES = os.getenv('LINGUA_LANGUAGES').split(',')
 LANGUAGES = [getattr(Language, lang.strip().upper()) for lang in LINGUA_LANGUAGES]
-DETECTOR = LanguageDetectorBuilder.from_languages(*LANGUAGES).build()
 
 async def stream_transcription(websocket, stt_manager):
     audio_data = await get_processed_audio(stt_manager.audio_chunk_0, stt_manager.audio_bytes)
@@ -33,7 +32,8 @@ async def stream_transcription(websocket, stt_manager):
 
 
 
-async def stream_audio(websocket, text: str, tts_manager):
+async def stream_audio(websocket, text: str, tts_manager, langs):
+    DETECTOR = LanguageDetectorBuilder.from_languages(*langs).build()
     result = DETECTOR.detect_multiple_languages_of(text)
     for r in result:
         audio_bytes = await tts_manager.get_output(text[r.start_index: r.end_index], r.language.name.lower())
