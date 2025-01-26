@@ -13,22 +13,23 @@ LANGUAGES = [getattr(Language, lang.strip().upper()) for lang in LINGUA_LANGUAGE
 async def stream_transcription(websocket, stt_manager):
     audio_data = await get_processed_audio(stt_manager.audio_chunk_0, stt_manager.audio_bytes)
     transcription = await get_transcription(audio_data)
-    stt_manager.transcription = transcription
+    if "Thank you" not in transcription:
+        stt_manager.transcription = transcription
 
-    message = {
-        "type": "message"
-        ,"sender": {
-            "name": "Me"
+        message = {
+            "type": "message"
+            ,"sender": {
+                "name": "Me"
+            }
+            ,"meta": {
+                "id": stt_manager.id
+            }
+            ,"media": {
+                "text": transcription
+            }
         }
-        ,"meta": {
-            "id": stt_manager.id
-        }
-        ,"media": {
-            "text": transcription
-        }
-    }
 
-    await websocket.send_text(json.dumps(message))
+        await websocket.send_text(json.dumps(message))
 
 
 
@@ -49,6 +50,7 @@ async def stream_output(websocket, stt_manager, llm_manager, tts_manager):
         async with stt_manager.lock:
             stt_manager.id += 1
             stt_manager.audio_bytes = b''
+            stt_manager.transcription = ""
         text = output
         tmp = output
         async for output in agen:
