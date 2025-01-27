@@ -10,7 +10,6 @@ async def process_queue(websocket
                         , stt_manager
                         , llm_manager
                         , tts_manager):
-    tasks_llm = []
     while True:
         audio_chunk = await queue.get()
         try:
@@ -19,20 +18,6 @@ async def process_queue(websocket
         except Exception as e:
             pass
         if speech:
-            if stt_manager.sent_to_llm:
-                for t in tasks_llm:
-                    t.cancel()
-
-                message = {
-                    "type": "command" 
-                    ,"command": "stop_audio" 
-                }
-
-                await websocket.send_text(json.dumps(message))
-
-                await asyncio.gather(*tasks_llm, return_exceptions=True)
-                tasks_llm.clear()
-
             async with stt_manager.lock:
                 stt_manager.sent_to_llm = False
                 stt_manager.audio_bytes += audio_chunk
@@ -41,6 +26,17 @@ async def process_queue(websocket
                 stt_manager.sent_to_llm = True
 
             await stream_transcription(websocket, stt_manager)
-            tasks_llm.append(asyncio.create_task(stream_output(websocket, stt_manager, llm_manager, tts_manager)))
+            if stt_manager.transcription:
+                try:
+                    task_llm.cancel()
+                    message = {
+                        "type": "command" 
+                        ,"command": "stop_audio" 
+                    }
+
+                    await websocket.send_text(json.dumps(message))
+                except Exception as e:
+                    pass
+                task_llm = asyncio.create_task(stream_output(websocket, stt_manager, llm_manager, tts_manager))
 
 
