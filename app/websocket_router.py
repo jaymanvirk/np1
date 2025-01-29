@@ -16,9 +16,7 @@ async def handle_stream_audio(websocket: WebSocket):
     tts_manager = TTSManager()
     llm_manager = LLMManager()
     
-    await llm_manager.start_session()
-
-    stream_task = asyncio.create_task(process_queue(websocket, queue, stt_manager, llm_manager, tts_manager))
+    queue_task = asyncio.create_task(process_queue(websocket, queue, stt_manager, llm_manager, tts_manager))
 
     try:
         stt_manager.audio_chunk_0 = await websocket.receive_bytes()
@@ -29,7 +27,7 @@ async def handle_stream_audio(websocket: WebSocket):
         pass
     finally:
         try:
-            stream_task.cancel()
+            queue_task.cancel()
             await llm_manager.close()
             await websocket.close()
         except Exception as e:
