@@ -10,6 +10,9 @@ async def process_queue(websocket
                         , stt_manager
                         , llm_manager
                         , tts_manager):
+
+    asyncio.create_task(stream_output(websocket, stt_manager, llm_manager, tts_manager))
+
     while True:
         audio_chunk = await queue.get()
         try:
