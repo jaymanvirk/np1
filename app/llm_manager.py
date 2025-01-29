@@ -19,22 +19,13 @@ class LLMManager:
         self.model_checkpoint_embed = model_checkpoint_embed
         self.instruction_gen = instruction_gen
         self.messages: List[dict] = []
-        self.session: aiohttp.ClientSession = None        
+        self.session = aiohttp.ClientSession() 
 
     def add_message(self, role: str, content: str):
         """Store a user message."""
         if content:
             message = {"role": role, "content": content}
             self.messages.append(message)
-
-    async def start_session(self) -> None:
-        """Start up the Ollama session"""
-        if self.session is None or self.session.closed:
-            self.session = aiohttp.ClientSession()
-
-        start_message = ""
-        async for _ in self.get_chat(start_message):
-            pass
 
     async def get_chat(self, content: str) -> AsyncGenerator[str, None]:
         """Send a message to the model and return an async generator of responses."""
