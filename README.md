@@ -11,6 +11,7 @@
 - Memcached
 - Cassandra
 - Docker
+- nginx
 
 ## License
 This project is licensed under the MIT License.
