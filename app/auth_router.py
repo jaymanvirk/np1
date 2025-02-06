@@ -1,6 +1,5 @@
 from fastapi import Request, Response, APIRouter
 from html.get_main_html import get_main_html
-import os
 
 router = APIRouter()
 
