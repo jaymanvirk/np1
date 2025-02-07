@@ -33,3 +33,29 @@ async def handle_stream_audio(websocket: WebSocket):
         except Exception as e:
             pass
 
+@router.websocket("/v1/text")
+async def handle_stream_text(websocket: WebSocket):
+    await websocket.accept()
+    
+
+    data = await websocket.receive_json()
+    llm_manager = LLMManager(
+                 , model_checkpoint=data["model_checkpoint"]
+                 )
+    
+    try:
+        while True:
+            text = await websocket.receive_text()
+            output = await llm_manager.get_output(text) 
+            await websocket.send_text(output)
+    except Exception as e:
+        pass
+    finally:
+        try:
+            await llm_manager.close()
+            await websocket.close()
+        except Exception as e:
+            pass
+
+
+
