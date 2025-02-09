@@ -40,7 +40,7 @@ async def handle_stream_text(websocket: WebSocket):
 
     data = await websocket.receive_json()
     llm_manager = LLMManager(
-                 , model_checkpoint=data["model_checkpoint"]
+                 model_checkpoint=data["model_checkpoint"]
                  )
     
     try:
