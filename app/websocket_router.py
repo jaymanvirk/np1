@@ -46,8 +46,9 @@ async def handle_stream_text(websocket: WebSocket):
     try:
         while True:
             text = await websocket.receive_text()
-            output = await llm_manager.get_generate(text) 
-            await websocket.send_text(output)
+            agen = llm_manager.get_generate(text) 
+            async for output in agen:
+                asyncio.create_task(websocket.send_text(output))
     except Exception as e:
         pass
     finally:
