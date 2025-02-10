@@ -13,8 +13,8 @@ class LLMManager:
                  , instruction_gen=os.getenv("LLM_INSTRUCTION_GEN")
                  ):
         self.url_chat = f'{url}/chat'
-        self.url_embed = f'{url}/embeddings'
-        self.url_gen = f'{url}/generate'
+        self.url_embeddings = f'{url}/embeddings'
+        self.url_generate = f'{url}/generate'
         self.model_checkpoint = model_checkpoint
         self.model_checkpoint_embed = model_checkpoint_embed
         self.instruction_gen = instruction_gen
@@ -51,7 +51,7 @@ class LLMManager:
             ,"prompt": prompt
         }
 
-        async with self.session.post(self.url_embed, headers=headers, data=json.dumps(payload)) as response:
+        async with self.session.post(self.url_embedddings, headers=headers, data=json.dumps(payload)) as response:
             if response.status == 200:
                 result = await response.json()
 
@@ -66,11 +66,25 @@ class LLMManager:
             ,"stream": False
         }
 
-        async with self.session.post(self.url_embed, headers=headers, data=json.dumps(payload)) as response:
+        async with self.session.post(self.url_embeddings, headers=headers, data=json.dumps(payload)) as response:
             if response.status == 200:
                 result = await response.json()
 
                 return result["response"]
+            
+    async def get_generate(prompt):
+        headers = {'Content-Type': 'application/json'}
+        payload = {
+            "model": self.model_checkpoint
+            ,"prompt": prompt
+            ,"stream": False
+        }
+
+        async with self.session.post(self.url_generate, headers=headers, data=json.dumps(payload)) as response:
+            if response.status == 200:
+                return await response.json()
+            else:
+                return response
     
     async def close(self) -> None:
         """Close the aiohttp ClientSession"""
