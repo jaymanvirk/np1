@@ -44,7 +44,7 @@ class LLMManager:
         finally:
             self.add_message("assistant", buffer_response)
     
-    async def get_embedding(prompt):
+    async def get_embedding(self, prompt):
         headers = {'Content-Type': 'application/json'}
         payload = {
             "model": self.model_checkpoint_embed
@@ -57,7 +57,7 @@ class LLMManager:
 
                 return result["embedding"]
      
-    async def get_query(prompt):
+    async def get_query(self, prompt):
         full_prompt = f'{self.instruction_gen}\n\n{prompt}'
         headers = {'Content-Type': 'application/json'}
         payload = {
@@ -72,20 +72,21 @@ class LLMManager:
 
                 return result["response"]
             
-    async def get_generate(prompt):
+    async def get_generate(self, prompt):
         headers = {'Content-Type': 'application/json'}
         payload = {
             "model": self.model_checkpoint
             ,"prompt": prompt
-            ,"stream": False
+            ,"stream": True
         }
-
         async with self.session.post(self.url_generate, headers=headers, data=json.dumps(payload)) as response:
             if response.status == 200:
-                return await response.json()
-            else:
-                return response
-    
+                async for line in response.content:
+                    output_line = line.decode().strip()
+                    if output_line:
+                        output = json.loads(output_line)
+                        yield str(output["response"])
+
     async def close(self) -> None:
         """Close the aiohttp ClientSession"""
         if self.session and not self.session.closed:
