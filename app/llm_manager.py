@@ -78,6 +78,9 @@ class LLMManager:
             "model": self.model_checkpoint
             ,"prompt": prompt
             ,"stream": True
+            ,"options": {
+                "num_ctx": 5000
+            }
         }
         async with self.session.post(self.url_generate, headers=headers, data=json.dumps(payload)) as response:
             if response.status == 200:
