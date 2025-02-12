@@ -42,7 +42,6 @@ COPY Modelfile .
 RUN ollama serve & \
     sleep 5 && \
     ollama create k -f ./Modelfile && \
-    ollama pull mxbai-embed-large
 
 # Copy requirements.txt first to leverage caching
 COPY requirements.txt .
